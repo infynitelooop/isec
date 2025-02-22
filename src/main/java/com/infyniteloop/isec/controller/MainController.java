@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class MainController {
 
-    @GetMapping("/login")
-    public String login() {
+    @GetMapping("/hello")
+    public String hello() {
         return "Welcome to ISEC";
     }
 }
