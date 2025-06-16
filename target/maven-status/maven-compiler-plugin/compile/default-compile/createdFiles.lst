@@ -1,0 +1,4 @@
+com/infyniteloop/isec/users/repository/UserRepository.class
+com/infyniteloop/isec/users/models/Role.class
+com/infyniteloop/isec/users/models/User.class
+com/infyniteloop/isec/users/models/AppRole.class
