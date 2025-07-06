@@ -13,6 +13,7 @@ public class Note {
 
     @Lob
     private String content;
+
     private String ownerUsername;
 
 

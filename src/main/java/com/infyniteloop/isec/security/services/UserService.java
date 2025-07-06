@@ -1,0 +1,18 @@
+package com.infyniteloop.isec.security.services;
+
+
+
+import com.infyniteloop.isec.security.dtos.UserDTO;
+import com.infyniteloop.isec.security.models.User;
+
+import java.util.List;
+
+public interface UserService {
+    void updateUserRole(Long userId, String roleName);
+
+    List<User> getAllUsers();
+
+    UserDTO getUserById(Long id);
+
+    User findByUsername(String username);
+}
