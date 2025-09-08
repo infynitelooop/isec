@@ -7,7 +7,7 @@ import com.infyniteloop.isec.security.models.Role;
 import com.infyniteloop.isec.security.models.User;
 import com.infyniteloop.isec.security.repository.RoleRepository;
 import com.infyniteloop.isec.security.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,7 +16,6 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -37,8 +36,14 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @EnableMethodSecurity(prePostEnabled = true, securedEnabled = true, jsr250Enabled = true)
 public class SecurityConfig {
 
-    @Autowired
-    private AuthEntryPointJwt unauthorizedHandler;
+    @Value("${app.frontend.url}")
+    String frontendUrl;
+
+    private final AuthEntryPointJwt unauthorizedHandler;
+
+    public SecurityConfig(AuthEntryPointJwt unauthorizedHandler) {
+        this.unauthorizedHandler = unauthorizedHandler;
+    }
 
     @Bean
     public AuthTokenFilter authenticationJwtTokenFilter() {
@@ -60,13 +65,17 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/public/**").permitAll()
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/notes/**").hasRole("ADMIN")
+//                .requestMatchers("/api/audit/**").hasRole("ADMIN")
+                .requestMatchers("/api/notes/**").hasRole("USER")
                 .requestMatchers("/api/user/**").hasRole("USER")
+                .requestMatchers("/api/auth/user/**").hasAnyRole("USER","ADMIN")
                 .requestMatchers("/api/csrf-token").permitAll()
                 .requestMatchers("/api/public/**").permitAll()
                 .requestMatchers("/h2-console/**").permitAll()
                 .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                 .requestMatchers("/actuator/**").permitAll()
                 .anyRequest().authenticated());
+
         // The default exception handling mechanism is unauthorizedHandler
         http.exceptionHandling(exception
                 -> exception.authenticationEntryPoint(unauthorizedHandler));
@@ -135,7 +144,8 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsConfig = new CorsConfiguration();
         // Allow specific origins
-        corsConfig.setAllowedOrigins(List.of("http://localhost:3000"));
+
+        corsConfig.setAllowedOrigins(List.of(frontendUrl));
 
         // Allow specific HTTP methods
         corsConfig.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
