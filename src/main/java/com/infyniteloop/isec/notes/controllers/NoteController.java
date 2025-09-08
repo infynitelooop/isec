@@ -13,21 +13,23 @@ import java.util.List;
 @RequestMapping("/api/notes")
 public class NoteController {
 
-    @Autowired
-    private NoteService noteService;
+    private final NoteService noteService;
+
+    // Constructor injection
+    public NoteController(NoteService noteService) {
+        this.noteService = noteService;
+    }
 
     @PostMapping
     public Note createNote(@RequestBody String content,
                            @AuthenticationPrincipal UserDetails userDetails) {
         String username = userDetails.getUsername();
-        System.out.println("USER DETAILS: " + username);
         return noteService.createNoteForUser(username, content);
     }
 
     @GetMapping
     public List<Note> getUserNotes(@AuthenticationPrincipal UserDetails userDetails) {
         String username = userDetails.getUsername();
-        System.out.println("USER DETAILS: " + username);
         return noteService.getNotesForUser(username);
     }
 
