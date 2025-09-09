@@ -1,0 +1,28 @@
+# Compiled class files
+*.class
+
+# Maven target directory
+/target/
+
+# Eclipse / IntelliJ / VS Code files
+/.idea/
+/*.iml
+/.vscode/
+
+# Logs
+*.log
+logs/
+spring.log
+
+# Temporary files
+*.tmp
+*.swp
+.DS_Store
+
+# Environment / secrets
+.env
+application*.yml
+application*.properties
+
+# OS generated files
+Thumbs.db
