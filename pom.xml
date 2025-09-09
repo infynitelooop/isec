@@ -95,6 +95,9 @@
         </dependency>
 
         <!-- Springdoc OpenAPI for API documentation -->
+        <!--  Run this command to generate the swagger specification when the application is running
+              curl http://localhost:8080/v3/api-docs.yaml -o openapi.yaml-->
+
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>

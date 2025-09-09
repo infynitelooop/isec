@@ -32,6 +32,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+//TODO: - `POST /auth/refresh-token` - Refresh JWT token
+//TODO: - `POST /auth/logout` - User logout
 @RestController
 @RequestMapping("/api/auth")
 @Tag(name = "Authentication Controller", description = "APIs for user authentication and registration")
