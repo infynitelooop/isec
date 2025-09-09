@@ -6,6 +6,7 @@ import com.infyniteloop.isec.notes.models.AuditLog;
 import com.infyniteloop.isec.notes.models.Note;
 import com.infyniteloop.isec.notes.repository.AuditLogRepository;
 import com.infyniteloop.isec.notes.services.AuditLogService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;

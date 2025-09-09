@@ -8,6 +8,8 @@ import com.infyniteloop.isec.security.models.User;
 import com.infyniteloop.isec.security.repository.RoleRepository;
 import com.infyniteloop.isec.security.repository.UserRepository;
 import com.infyniteloop.isec.security.services.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -32,28 +34,31 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/auth")
+@Tag(name = "Authentication Controller", description = "APIs for user authentication and registration")
 public class AuthController {
 
-    @Autowired
+
     JwtUtils jwtUtils;
 
-    @Autowired
     AuthenticationManager authenticationManager;
-
-    @Autowired
     UserRepository userRepository;
-
-    @Autowired
     RoleRepository roleRepository;
-
-    @Autowired
     PasswordEncoder encoder;
-
-    @Autowired
     UserService userService;
+
+
+    public AuthController(JwtUtils jwtUtils, AuthenticationManager authenticationManager, UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder encoder, UserService userService) {
+        this.jwtUtils = jwtUtils;
+        this.authenticationManager = authenticationManager;
+        this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
+        this.encoder = encoder;
+        this.userService = userService;
+    }
 
     @PostMapping("/public/signin")
     //@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
+    @Operation(summary = "User Signin", description = "Authenticate user and return JWT token")
     public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
         Authentication authentication;
         try {
@@ -89,6 +94,7 @@ public class AuthController {
 
 
     @PostMapping("/public/signup")
+    @Operation(summary = "User Signup", description = "Register a new user")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
         if (userRepository.existsByUserName(signUpRequest.getUsername())) {
             return ResponseEntity.badRequest().body(new MessageResponse("Error: Username is already taken!"));
@@ -136,6 +142,7 @@ public class AuthController {
 
 
     @GetMapping("/user")
+    @Operation(summary = "Get User Details", description = "Retrieve details of the authenticated user")
     public ResponseEntity<?> getUserDetails(@AuthenticationPrincipal UserDetails userDetails) {
         User user = userService.findByUsername(userDetails.getUsername());
 
@@ -161,6 +168,7 @@ public class AuthController {
     }
 
     @GetMapping("/username")
+    @Operation(summary = "Get Username", description = "Retrieve the username of the authenticated user")
     public ResponseEntity<?> getUsername(@AuthenticationPrincipal UserDetails userDetails) {
         User user = userService.findByUsername(userDetails.getUsername());
 
