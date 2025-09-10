@@ -3,30 +3,46 @@ package com.infyniteloop.isec.security.services.impl;
 
 import com.infyniteloop.isec.security.dtos.UserDTO;
 import com.infyniteloop.isec.security.models.AppRole;
+import com.infyniteloop.isec.security.models.PasswordResetToken;
 import com.infyniteloop.isec.security.models.Role;
 import com.infyniteloop.isec.security.models.User;
+import com.infyniteloop.isec.security.repository.PasswordResetTokenRepository;
 import com.infyniteloop.isec.security.repository.RoleRepository;
 import com.infyniteloop.isec.security.repository.UserRepository;
+import com.infyniteloop.isec.security.services.EmailService;
 import com.infyniteloop.isec.security.services.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class UserServiceImpl implements UserService {
+
+    @Value("${app.frontend.url}")
+    String frontendUrl;
     
-    @Autowired
-    UserRepository userRepository;
 
-    @Autowired
-    RoleRepository roleRepository;
+    private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
+    private final EmailService emailService;
 
-    @Autowired
-    PasswordEncoder passwordEncoder;
 
+    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, PasswordResetTokenRepository passwordResetTokenRepository, EmailService emailService) {
+        this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.passwordResetTokenRepository = passwordResetTokenRepository;
+        this.emailService = emailService;
+    }
 
     @Override
     public void updateUserRole(Long userId, String roleName) {
@@ -48,7 +64,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDTO getUserById(Long id) {
-//        return userRepository.findById(id).orElseThrow();
         User user = userRepository.findById(id).orElseThrow();
         return convertToDto(user);
     }
@@ -128,5 +143,40 @@ public class UserServiceImpl implements UserService {
         } catch (Exception e) {
             throw new RuntimeException("Failed to update password");
         }
+    }
+
+    @Override
+    public void generatePasswordResetToken(String email){
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        String token = UUID.randomUUID().toString();
+        Instant expiryDate = Instant.now().plus(24, ChronoUnit.HOURS);
+        PasswordResetToken resetToken = new PasswordResetToken(token, expiryDate, user);
+        passwordResetTokenRepository.save(resetToken);
+
+        String resetUrl = frontendUrl + "/reset-password?token=" + token;
+        // Send email to user
+        emailService.sendPasswordResetEmail(user.getEmail(), resetUrl);
+    }
+
+    @Override
+    @Transactional
+    public void resetPassword(String token, String newPassword) {
+        PasswordResetToken resetToken = passwordResetTokenRepository.findByToken(token)
+                .orElseThrow(() -> new RuntimeException("Invalid password reset token"));
+
+        if (resetToken.isUsed())
+            throw new RuntimeException("Password reset token has already been used");
+
+        if (resetToken.getExpiryDate().isBefore(Instant.now()))
+            throw new RuntimeException("Password reset token has expired");
+
+        User user = resetToken.getUser();
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+
+        resetToken.setUsed(true);
+        passwordResetTokenRepository.save(resetToken);
     }
 }

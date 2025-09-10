@@ -8,6 +8,11 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+
+/**
+ * Configuration class for OpenAPI (Swagger) documentation.
+ * Sets up API metadata and security schemes for JWT authentication.
+ */
 @Configuration
 public class OpenApiConfig {
 

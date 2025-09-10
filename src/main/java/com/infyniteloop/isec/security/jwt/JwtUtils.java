@@ -1,8 +1,6 @@
 package com.infyniteloop.isec.security.jwt;
 
 import io.jsonwebtoken.*;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,18 +9,31 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
-import java.security.Key;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.security.KeyFactory;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.util.Base64;
 import java.util.Date;
 
 @Component
 public class JwtUtils {
     private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
 
-    @Value("${spring.app.jwtSecret}")
-    private String jwtSecret;
-
     @Value("${spring.app.jwtExpirationMs}")
     private int jwtExpirationMs;
+
+    private final PrivateKey privateKey;
+    private final PublicKey publicKey;
+
+    // Spring injects the PublicKey bean here from JwtConfig
+    public JwtUtils(PrivateKey privateKey, PublicKey publicKey) {
+        this.publicKey = publicKey;
+        this.privateKey = privateKey;
+    }
+
 
     public String getJwtFromHeader(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
@@ -39,26 +50,20 @@ public class JwtUtils {
                 .subject(username)
                 .issuedAt(new Date())
                 .expiration(new Date((new Date()).getTime() + jwtExpirationMs))
-                .signWith(key())
+                .signWith(privateKey)
                 .compact();
     }
 
     public String getUserNameFromJwtToken(String token) {
-        return Jwts.parser()
-                        .verifyWith((SecretKey) key())
-                .build().parseSignedClaims(token)
+        return getJwtClaims(token)
                 .getPayload().getSubject();
     }
 
-    private Key key() {
-        return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
-    }
+
 
     public boolean validateJwtToken(String authToken) {
         try {
-            System.out.println("Validate");
-            Jwts.parser().verifyWith((SecretKey) key())
-                    .build().parseSignedClaims(authToken);
+            getJwtClaims(authToken);
             return true;
         } catch (MalformedJwtException e) {
             logger.error("Invalid JWT token: {}", e.getMessage());
@@ -70,5 +75,10 @@ public class JwtUtils {
             logger.error("JWT claims string is empty: {}", e.getMessage());
         }
         return false;
+    }
+
+    private Jws<Claims> getJwtClaims(String authToken) {
+        return Jwts.parser().verifyWith((SecretKey) publicKey)
+                .build().parseSignedClaims(authToken);
     }
 }

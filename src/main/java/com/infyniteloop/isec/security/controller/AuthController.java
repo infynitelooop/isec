@@ -34,6 +34,9 @@ import java.util.stream.Collectors;
 
 //TODO: - `POST /auth/refresh-token` - Refresh JWT token
 //TODO: - `POST /auth/logout` - User logout
+/**
+ * Controller for handling authentication and user registration.
+ */
 @RestController
 @RequestMapping("/api/auth")
 @Tag(name = "Authentication Controller", description = "APIs for user authentication and registration")
@@ -58,6 +61,12 @@ public class AuthController {
         this.userService = userService;
     }
 
+    /**
+     * Authenticate user and return JWT token.
+     *
+     * @param loginRequest The login request containing username and password.
+     * @return ResponseEntity with JWT token and user details or error message.
+     */
     @PostMapping("/public/signin")
     //@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
     @Operation(summary = "User Signin", description = "Authenticate user and return JWT token")
@@ -70,7 +79,7 @@ public class AuthController {
             Map<String, Object> map = new HashMap<>();
             map.put("message", "Bad credentials");
             map.put("status", false);
-            return new ResponseEntity<Object>(map, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(map, HttpStatus.NOT_FOUND);
         }
 
         // set the authentication
@@ -95,6 +104,12 @@ public class AuthController {
     }
 
 
+    /**
+     * Register a new user.
+     *
+     * @param signUpRequest The signup request containing user details.
+     * @return ResponseEntity with success or error message.
+     */
     @PostMapping("/public/signup")
     @Operation(summary = "User Signup", description = "Register a new user")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
@@ -143,6 +158,12 @@ public class AuthController {
     }
 
 
+    /**
+     * Get details of the authenticated user.
+     *
+     * @param userDetails The authenticated user's details.
+     * @return ResponseEntity with user details.
+     */
     @GetMapping("/user")
     @Operation(summary = "Get User Details", description = "Retrieve details of the authenticated user")
     public ResponseEntity<?> getUserDetails(@AuthenticationPrincipal UserDetails userDetails) {
@@ -150,7 +171,7 @@ public class AuthController {
 
         List<String> roles = userDetails.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toList());
+                .toList();
 
         UserInfoResponse response = new UserInfoResponse(
                 user.getUserId(),
@@ -169,6 +190,12 @@ public class AuthController {
         return ResponseEntity.ok().body(response);
     }
 
+    /**
+     * Get username of the authenticated user.
+     *
+     * @param userDetails The authenticated user's details.
+     * @return ResponseEntity with the username.
+     */
     @GetMapping("/username")
     @Operation(summary = "Get Username", description = "Retrieve the username of the authenticated user")
     public ResponseEntity<?> getUsername(@AuthenticationPrincipal UserDetails userDetails) {
@@ -178,5 +205,43 @@ public class AuthController {
         UserInfoResponse response = UserInfoResponse.builder().username(user.getUserName()).build();
 
         return ResponseEntity.ok().body(response);
+    }
+
+    /**
+     * Endpoint to handle forgot password requests.
+     *
+     * @param email The email address of the user who forgot their password.
+     * @return ResponseEntity with success or error message.
+     */
+    @PostMapping("/public/forgot-password")
+    public ResponseEntity<?> forgotPassword(@RequestParam String email){
+        try{
+            userService.generatePasswordResetToken(email);
+            return ResponseEntity.ok(new MessageResponse("Password reset email sent!"));
+        } catch (Exception e){
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new MessageResponse("Error sending password reset email"));
+        }
+    }
+
+    /**
+     * Endpoint to handle password reset requests.
+     *
+     * @param token       The password reset token.
+     * @param newPassword The new password to set.
+     * @return ResponseEntity with success or error message.
+     */
+    @PostMapping("/public/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestParam String token,
+                                           @RequestParam String newPassword) {
+
+        try {
+            userService.resetPassword(token, newPassword);
+            return ResponseEntity.ok(new MessageResponse("Password reset successful"));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new MessageResponse(e.getMessage()));
+        }
     }
 }
