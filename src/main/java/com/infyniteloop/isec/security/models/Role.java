@@ -9,18 +9,19 @@ import lombok.ToString;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
 @Table(name = "roles")
-public class Role{
+public class Role  {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
     @Column(name = "role_id")
-    private Integer roleId;
+    private UUID roleId;
 
     @ToString.Exclude
     @Enumerated(EnumType.STRING)

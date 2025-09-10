@@ -7,27 +7,28 @@ import com.infyniteloop.isec.security.models.Role;
 import com.infyniteloop.isec.security.models.User;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface UserService {
-    void updateUserRole(Long userId, String roleName);
+    void updateUserRole(UUID userId, String roleName);
 
     List<User> getAllUsers();
 
-    UserDTO getUserById(Long id);
+    UserDTO getUserById(UUID id);
 
     User findByUsername(String username);
 
-    void updateAccountLockStatus(Long userId, boolean lock);
+    void updateAccountLockStatus(UUID userId, boolean lock);
 
     List<Role> getAllRoles();
 
-    void updateAccountExpiryStatus(Long userId, boolean expire);
+    void updateAccountExpiryStatus(UUID userId, boolean expire);
 
-    void updateAccountEnabledStatus(Long userId, boolean enabled);
+    void updateAccountEnabledStatus(UUID userId, boolean enabled);
 
-    void updateCredentialsExpiryStatus(Long userId, boolean expire);
+    void updateCredentialsExpiryStatus(UUID userId, boolean expire);
 
-    void updatePassword(Long userId, String password);
+    void updatePassword(UUID userId, String password);
 
     void generatePasswordResetToken(String email);
 

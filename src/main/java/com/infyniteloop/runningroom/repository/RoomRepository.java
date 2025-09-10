@@ -1,14 +1,14 @@
-package com.infyniteloop.isec.security.repository;
-
+package com.infyniteloop.runningroom.repository;
 
 import com.infyniteloop.isec.security.models.AppRole;
 import com.infyniteloop.isec.security.models.Role;
+import com.infyniteloop.runningroom.model.Room;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 import java.util.UUID;
 
-public interface RoleRepository extends JpaRepository<Role, UUID> {
-    Optional<Role> findByRoleName(AppRole appRole);
+public interface RoomRepository extends JpaRepository<Room, UUID> {
+    Optional<Room> findByRoomNumber(String roomNumber);
 
 }

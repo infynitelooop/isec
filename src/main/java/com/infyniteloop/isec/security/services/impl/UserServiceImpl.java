@@ -45,7 +45,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateUserRole(Long userId, String roleName) {
+    public void updateUserRole(UUID userId, String roleName) {
         User user = userRepository.findById(userId).orElseThrow(()
                 -> new RuntimeException("User not found"));
         AppRole appRole = AppRole.valueOf(roleName);
@@ -63,7 +63,7 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public UserDTO getUserById(Long id) {
+    public UserDTO getUserById(UUID id) {
         User user = userRepository.findById(id).orElseThrow();
         return convertToDto(user);
     }
@@ -95,7 +95,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateAccountLockStatus(Long userId, boolean lock) {
+    public void updateAccountLockStatus(UUID userId, boolean lock) {
         User user = userRepository.findById(userId).orElseThrow(()
                 -> new RuntimeException("User not found"));
         user.setAccountNonLocked(!lock);
@@ -109,7 +109,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateAccountExpiryStatus(Long userId, boolean expire) {
+    public void updateAccountExpiryStatus(UUID userId, boolean expire) {
         User user = userRepository.findById(userId).orElseThrow(()
                 -> new RuntimeException("User not found"));
         user.setAccountNonExpired(!expire);
@@ -117,7 +117,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateAccountEnabledStatus(Long userId, boolean enabled) {
+    public void updateAccountEnabledStatus(UUID userId, boolean enabled) {
         User user = userRepository.findById(userId).orElseThrow(()
                 -> new RuntimeException("User not found"));
         user.setEnabled(enabled);
@@ -125,7 +125,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateCredentialsExpiryStatus(Long userId, boolean expire) {
+    public void updateCredentialsExpiryStatus(UUID userId, boolean expire) {
         User user = userRepository.findById(userId).orElseThrow(()
                 -> new RuntimeException("User not found"));
         user.setCredentialsNonExpired(!expire);
@@ -134,7 +134,7 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public void updatePassword(Long userId, String password) {
+    public void updatePassword(UUID userId, String password) {
         try {
             User user = userRepository.findById(userId)
                     .orElseThrow(() -> new RuntimeException("User not found"));

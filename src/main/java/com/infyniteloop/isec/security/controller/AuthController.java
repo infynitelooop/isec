@@ -11,7 +11,6 @@ import com.infyniteloop.isec.security.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -93,7 +92,7 @@ public class AuthController {
         // Collect roles from the UserDetails
         List<String> roles = userDetails.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toList());
+                .toList();
 
         // Prepare the response body, now including the JWT token directly in the body
         LoginResponse response = new LoginResponse(userDetails.getUsername(),

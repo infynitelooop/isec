@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -33,7 +34,7 @@ public class AdminController {
 
     @PutMapping("/update-role")
     @Operation(summary = "Update user role (Admin only)")
-    public ResponseEntity<String> updateUserRole(@RequestParam Long userId, 
+    public ResponseEntity<String> updateUserRole(@RequestParam UUID userId,
                                                  @RequestParam String roleName) {
         userService.updateUserRole(userId, roleName);
         return ResponseEntity.ok("User role updated");
@@ -41,14 +42,14 @@ public class AdminController {
 
     @GetMapping("/user/{id}")
     @Operation(summary = "Get user by ID (Admin only)")
-    public ResponseEntity<UserDTO> getUser(@PathVariable Long id) {
+    public ResponseEntity<UserDTO> getUser(@PathVariable UUID id) {
         return new ResponseEntity<>(userService.getUserById(id),
                 HttpStatus.OK);
     }
 
     @PutMapping("/update-lock-status")
     @Operation(summary = "Update account lock status (Admin only)")
-    public ResponseEntity<String> updateAccountLockStatus(@RequestParam Long userId,
+    public ResponseEntity<String> updateAccountLockStatus(@RequestParam UUID userId,
                                                           @RequestParam boolean lock) {
         userService.updateAccountLockStatus(userId, lock);
         return ResponseEntity.ok("Account lock status updated");
@@ -62,7 +63,7 @@ public class AdminController {
 
     @PutMapping("/update-expiry-status")
     @Operation(summary = "Update account expiry status (Admin only)")
-    public ResponseEntity<String> updateAccountExpiryStatus(@RequestParam Long userId,
+    public ResponseEntity<String> updateAccountExpiryStatus(@RequestParam UUID userId,
                                                             @RequestParam boolean expire) {
         userService.updateAccountExpiryStatus(userId, expire);
         return ResponseEntity.ok("Account expiry status updated");
@@ -70,7 +71,7 @@ public class AdminController {
 
     @PutMapping("/update-enabled-status")
     @Operation(summary = "Update account enabled status (Admin only)")
-    public ResponseEntity<String> updateAccountEnabledStatus(@RequestParam Long userId,
+    public ResponseEntity<String> updateAccountEnabledStatus(@RequestParam UUID userId,
                                                              @RequestParam boolean enabled) {
         userService.updateAccountEnabledStatus(userId, enabled);
         return ResponseEntity.ok("Account enabled status updated");
@@ -78,14 +79,14 @@ public class AdminController {
 
     @PutMapping("/update-credentials-expiry-status")
     @Operation(summary = "Update credentials expiry status (Admin only)")
-    public ResponseEntity<String> updateCredentialsExpiryStatus(@RequestParam Long userId, @RequestParam boolean expire) {
+    public ResponseEntity<String> updateCredentialsExpiryStatus(@RequestParam UUID userId, @RequestParam boolean expire) {
         userService.updateCredentialsExpiryStatus(userId, expire);
         return ResponseEntity.ok("Credentials expiry status updated");
     }
 
     @PutMapping("/update-password")
     @Operation(summary = "Update user password (Admin only)")
-    public ResponseEntity<String> updatePassword(@RequestParam Long userId,
+    public ResponseEntity<String> updatePassword(@RequestParam UUID userId,
                                                  @RequestParam String password) {
         try {
             userService.updatePassword(userId, password);

@@ -7,6 +7,10 @@ import com.infyniteloop.isec.security.models.Role;
 import com.infyniteloop.isec.security.models.User;
 import com.infyniteloop.isec.security.repository.RoleRepository;
 import com.infyniteloop.isec.security.repository.UserRepository;
+import com.infyniteloop.runningroom.model.Room;
+import com.infyniteloop.runningroom.model.Tenant;
+import com.infyniteloop.runningroom.repository.RoomRepository;
+import com.infyniteloop.runningroom.repository.TenantRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
@@ -101,59 +105,7 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    @Bean
-    public CommandLineRunner initData(RoleRepository roleRepository,
-                                      UserRepository userRepository, PasswordEncoder passwordEncoder) {
-        return args -> {
-            Role userRole = roleRepository.findByRoleName(AppRole.ROLE_USER)
-                    .orElseGet(() -> roleRepository.save(new Role(AppRole.ROLE_USER)));
 
-            Role adminRole = roleRepository.findByRoleName(AppRole.ROLE_ADMIN)
-                    .orElseGet(() -> roleRepository.save(new Role(AppRole.ROLE_ADMIN)));
-
-            if (!userRepository.existsByUserName("user1")) {
-                User user1 = new User("user1", "user1@example.com", passwordEncoder.encode("password1"));
-                user1.setAccountNonLocked(false);
-                user1.setAccountNonExpired(true);
-                user1.setCredentialsNonExpired(true);
-                user1.setEnabled(true);
-                user1.setCredentialsExpiryDate(LocalDate.now().plusYears(1));
-                user1.setAccountExpiryDate(LocalDate.now().plusYears(1));
-                user1.setTwoFactorEnabled(false);
-                user1.setSignUpMethod("email");
-                user1.setRole(userRole);
-                userRepository.save(user1);
-            }
-
-            if (!userRepository.existsByUserName("admin")) {
-                User admin = new User("admin", "admin@example.com", passwordEncoder.encode("adminPass"));
-                admin.setAccountNonLocked(true);
-                admin.setAccountNonExpired(true);
-                admin.setCredentialsNonExpired(true);
-                admin.setEnabled(true);
-                admin.setCredentialsExpiryDate(LocalDate.now().plusYears(1));
-                admin.setAccountExpiryDate(LocalDate.now().plusYears(1));
-                admin.setTwoFactorEnabled(false);
-                admin.setSignUpMethod("email");
-                admin.setRole(adminRole);
-                userRepository.save(admin);
-            }
-
-            if (!userRepository.existsByUserName("rangasanju")) {
-                User admin = new User("admin", "sanjay.ranga.au@gmail.com", passwordEncoder.encode("adminPass"));
-                admin.setAccountNonLocked(true);
-                admin.setAccountNonExpired(true);
-                admin.setCredentialsNonExpired(true);
-                admin.setEnabled(true);
-                admin.setCredentialsExpiryDate(LocalDate.now().plusYears(1));
-                admin.setAccountExpiryDate(LocalDate.now().plusYears(1));
-                admin.setTwoFactorEnabled(false);
-                admin.setSignUpMethod("email");
-                admin.setRole(adminRole);
-                userRepository.save(admin);
-            }
-        };
-    }
 
     // GLOBAL settings for CORS
     @Bean
@@ -175,6 +127,85 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", corsConfig); // Apply to all endpoints
         return source;
     }
+
+
+
+
+
+    @Bean
+    public CommandLineRunner initData(RoleRepository roleRepository,
+                                      UserRepository userRepository, PasswordEncoder passwordEncoder, TenantRepository tenantRepository,
+                                      RoomRepository roomRepository) {
+        return args -> {
+            Role userRole = roleRepository.findByRoleName(AppRole.ROLE_USER)
+                    .orElseGet(() -> roleRepository.save(new Role(AppRole.ROLE_USER)));
+
+            Role adminRole = roleRepository.findByRoleName(AppRole.ROLE_ADMIN)
+                    .orElseGet(() -> roleRepository.save(new Role(AppRole.ROLE_ADMIN)));
+
+
+            Tenant tenant_Ndls = tenantRepository.findByTenantName("NDLS")
+                    .orElseGet(() -> tenantRepository.save(new Tenant("NDLS")));
+
+            Tenant tenant_Lko = tenantRepository.findByTenantName("LKO")
+                    .orElseGet(() -> tenantRepository.save(new Tenant("LKO")));
+
+
+            roomRepository.findByRoomNumber("101")
+                    .orElseGet(() -> roomRepository.save(new Room("101", tenant_Ndls.getId())));
+            roomRepository.findByRoomNumber("102")
+                    .orElseGet(() -> roomRepository.save(new Room("102", tenant_Ndls.getId())));
+
+
+
+            if (!userRepository.existsByUserName("user1")) {
+                User user1 = new User("user1", "user1@example.com", passwordEncoder.encode("password1"));
+                user1.setAccountNonLocked(false);
+                user1.setAccountNonExpired(true);
+                user1.setCredentialsNonExpired(true);
+                user1.setEnabled(true);
+                user1.setCredentialsExpiryDate(LocalDate.now().plusYears(1));
+                user1.setAccountExpiryDate(LocalDate.now().plusYears(1));
+                user1.setTwoFactorEnabled(false);
+                user1.setSignUpMethod("email");
+                user1.setRole(userRole);
+                user1.setTenantId(tenant_Ndls.getId());
+                userRepository.save(user1);
+            }
+
+            if (!userRepository.existsByUserName("admin")) {
+                User admin = new User("admin", "admin@example.com", passwordEncoder.encode("adminPass"));
+                admin.setAccountNonLocked(true);
+                admin.setAccountNonExpired(true);
+                admin.setCredentialsNonExpired(true);
+                admin.setEnabled(true);
+                admin.setCredentialsExpiryDate(LocalDate.now().plusYears(1));
+                admin.setAccountExpiryDate(LocalDate.now().plusYears(1));
+                admin.setTwoFactorEnabled(false);
+                admin.setSignUpMethod("email");
+                admin.setRole(adminRole);
+                admin.setTenantId(tenant_Ndls.getId());
+                userRepository.save(admin);
+            }
+
+            if (!userRepository.existsByUserName("rangasanju")) {
+                User admin = new User("rangasanju", "sanjay.ranga.au@gmail.com", passwordEncoder.encode("adminPass"));
+                admin.setAccountNonLocked(true);
+                admin.setAccountNonExpired(true);
+                admin.setCredentialsNonExpired(true);
+                admin.setEnabled(true);
+                admin.setCredentialsExpiryDate(LocalDate.now().plusYears(1));
+                admin.setAccountExpiryDate(LocalDate.now().plusYears(1));
+                admin.setTwoFactorEnabled(false);
+                admin.setSignUpMethod("email");
+                admin.setRole(adminRole);
+                admin.setTenantId(tenant_Ndls.getId());
+                userRepository.save(admin);
+            }
+        };
+    }
+
+
 
 
 }
