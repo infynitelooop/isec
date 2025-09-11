@@ -4,7 +4,6 @@ package com.infyniteloop.isec.security.services;
 import com.infyniteloop.isec.security.models.User;
 import com.infyniteloop.isec.security.repository.UserRepository;
 import com.infyniteloop.isec.security.services.impl.UserDetailsImpl;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

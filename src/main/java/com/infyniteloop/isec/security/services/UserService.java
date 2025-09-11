@@ -5,6 +5,7 @@ package com.infyniteloop.isec.security.services;
 import com.infyniteloop.isec.security.dtos.UserDTO;
 import com.infyniteloop.isec.security.models.Role;
 import com.infyniteloop.isec.security.models.User;
+import com.warrenstrange.googleauth.GoogleAuthenticatorKey;
 
 import java.util.List;
 import java.util.UUID;
@@ -33,4 +34,12 @@ public interface UserService {
     void generatePasswordResetToken(String email);
 
     void resetPassword(String token, String newPassword);
+
+    GoogleAuthenticatorKey generate2FASecret(UUID userId);
+
+    boolean validate2FACode(UUID userId, int code);
+
+    void enable2FA(UUID userId);
+
+    void disable2FA(UUID userId);
 }

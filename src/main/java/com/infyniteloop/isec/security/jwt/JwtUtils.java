@@ -73,7 +73,7 @@ public class JwtUtils {
     }
 
     private Jws<Claims> getJwtClaims(String authToken) {
-        return Jwts.parser().verifyWith((SecretKey) publicKey)
+        return Jwts.parser().verifyWith(publicKey)
                 .build().parseSignedClaims(authToken);
     }
 }
