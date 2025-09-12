@@ -1,7 +1,7 @@
 package com.infyniteloop.runningroom.model;
 
 import com.infyniteloop.runningroom.model.types.RoomType;
-import com.infyniteloop.runningroom.model.types.Status;
+import com.infyniteloop.runningroom.model.types.RoomStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -31,7 +31,7 @@ public class Room {
     private int capacity = 2;
 
     @Enumerated(EnumType.STRING)
-    private Status status = Status.VACANT;
+    private RoomStatus status = RoomStatus.AVAILABLE;
 
     @Column(nullable = false)
     private UUID tenantId;

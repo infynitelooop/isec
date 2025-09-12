@@ -1,6 +1,6 @@
 package com.infyniteloop.runningroom.model.types;
 
-public enum Status {
+public enum RoomStatus {
     AVAILABLE,
     OCCUPIED,
     MAINTENANCE,
