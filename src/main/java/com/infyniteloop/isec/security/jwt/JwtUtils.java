@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.Date;
+import java.util.List;
 
 @Component
 public class JwtUtils {
@@ -50,9 +51,14 @@ public class JwtUtils {
         User user = userRepository.findByUserName(userDetails.getUsername())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
+        List<String> roleNames = user.getRoles()
+                .stream()
+                .map(role -> role.getRoleName().name()) // AppRole enum name
+                .toList();
+
         return Jwts.builder()
                 .subject(username)
-                .claim("roles", user.getRoles())
+                .claim("roles", roleNames)
                 .claim("tenantId", user.getTenantId().toString()) // U
                 .issuedAt(new Date())
                 .expiration(new Date((new Date()).getTime() + jwtExpirationMs))
