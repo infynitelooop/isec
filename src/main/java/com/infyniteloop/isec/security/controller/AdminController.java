@@ -1,11 +1,13 @@
 package com.infyniteloop.isec.security.controller;
 
-import com.infyniteloop.isec.security.dtos.UserDTO;
+import com.infyniteloop.isec.security.dtos.UserRequest;
+import com.infyniteloop.isec.security.dtos.UserResponse;
 import com.infyniteloop.isec.security.models.Role;
 import com.infyniteloop.isec.security.models.User;
 import com.infyniteloop.isec.security.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,17 +34,17 @@ public class AdminController {
                 HttpStatus.OK);
     }
 
-    @PutMapping("/update-role")
-    @Operation(summary = "Update user role (Admin only)")
-    public ResponseEntity<String> updateUserRole(@RequestParam UUID userId,
-                                                 @RequestParam String roleName) {
-        userService.updateUserRole(userId, roleName);
+    @PutMapping("/update-user/{userId}")
+    @Operation(summary = "Update user (Admin only)")
+    public ResponseEntity<String> updateUser(@PathVariable UUID userId,
+                                             @Valid @RequestBody UserRequest userRequest) {
+        userService.updateUser(userId, userRequest);
         return ResponseEntity.ok("User role updated");
     }
 
     @GetMapping("/user/{id}")
     @Operation(summary = "Get user by ID (Admin only)")
-    public ResponseEntity<UserDTO> getUser(@PathVariable UUID id) {
+    public ResponseEntity<UserResponse> getUser(@PathVariable UUID id) {
         return new ResponseEntity<>(userService.getUserById(id),
                 HttpStatus.OK);
     }

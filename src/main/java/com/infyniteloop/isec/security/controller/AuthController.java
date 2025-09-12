@@ -156,7 +156,7 @@ public class AuthController {
             user.setTwoFactorEnabled(false);
             user.setSignUpMethod("email");
         }
-        user.setRole(role);
+        user.getRoles().add(role);
         userRepository.save(user);
 
         return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
@@ -257,7 +257,7 @@ public class AuthController {
         UUID userId = authUtil.loggedInUserId();
         GoogleAuthenticatorKey secret = userService.generate2FASecret(userId);
         String qrCodeUrl = totpService.getQrCodeUrl(secret,
-                userService.getUserById(userId).getUserName());
+                userService.getUserById(userId).userName());
         return ResponseEntity.ok(qrCodeUrl);
     }
 

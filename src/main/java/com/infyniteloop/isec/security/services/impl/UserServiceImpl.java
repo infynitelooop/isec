@@ -2,6 +2,9 @@ package com.infyniteloop.isec.security.services.impl;
 
 
 import com.infyniteloop.isec.security.dtos.UserDTO;
+import com.infyniteloop.isec.security.dtos.UserRequest;
+import com.infyniteloop.isec.security.dtos.UserResponse;
+import com.infyniteloop.isec.security.mapper.UserMapper;
 import com.infyniteloop.isec.security.models.AppRole;
 import com.infyniteloop.isec.security.models.PasswordResetToken;
 import com.infyniteloop.isec.security.models.Role;
@@ -22,7 +25,9 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -37,26 +42,73 @@ public class UserServiceImpl implements UserService {
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final EmailService emailService;
     private final TotpService totpService;
+    private final UserMapper userMapper;
 
 
     public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder,
-                           PasswordResetTokenRepository passwordResetTokenRepository, EmailService emailService, TotpService totpService) {
+                           PasswordResetTokenRepository passwordResetTokenRepository, EmailService emailService,
+                           TotpService totpService, UserMapper userMapper) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
         this.passwordResetTokenRepository = passwordResetTokenRepository;
         this.emailService = emailService;
         this.totpService = totpService;
+        this.userMapper = userMapper;
+    }
+
+
+
+
+    @Override
+    public UserResponse updateUser(UUID userId, UserRequest userRequest) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Update basic fields if they are not null
+        if (userRequest.userName() != null) user.setUserName(userRequest.userName());
+        if (userRequest.email() != null) user.setEmail(userRequest.email());
+
+        if (userRequest.accountExpiryDate() != null) user.setAccountExpiryDate(userRequest.accountExpiryDate());
+        if (userRequest.credentialsExpiryDate() != null) user.setCredentialsExpiryDate(userRequest.credentialsExpiryDate());
+        if (userRequest.enabled() != null) user.setEnabled(userRequest.enabled());
+        if (userRequest.accountNonLocked() != null) user.setAccountNonLocked(userRequest.accountNonLocked());
+        if (userRequest.accountNonExpired() != null) user.setAccountNonExpired(userRequest.accountNonExpired());
+        if (userRequest.credentialsNonExpired() != null) user.setCredentialsNonExpired(userRequest.credentialsNonExpired());
+        if (userRequest.isTwoFactorEnabled() != null) user.setTwoFactorEnabled(userRequest.isTwoFactorEnabled());
+
+        // Update roles if provided
+        if (userRequest.roles() != null && !userRequest.roles().isEmpty()) {
+            Set<Role> roles = userRequest.roles().stream()
+                    .map(roleName -> roleRepository.findByRoleName(AppRole.valueOf(roleName))
+                            .orElseThrow(() -> new RuntimeException("Role not found: " + roleName)))
+                    .collect(Collectors.toSet());
+            user.setRoles(roles);
+        }
+
+        userRepository.save(user);
+
+        // Map entity to response DTO
+        return userMapper.toResponse(user);
     }
 
     @Override
-    public void updateUserRole(UUID userId, String roleName) {
-        User user = userRepository.findById(userId).orElseThrow(()
-                -> new RuntimeException("User not found"));
-        AppRole appRole = AppRole.valueOf(roleName);
-        Role role = roleRepository.findByRoleName(appRole)
-                .orElseThrow(() -> new RuntimeException("Role not found"));
-        user.setRole(role);
+    public void updateUserRoles(UUID userId, List<String> roleNames) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Convert requested role names into Role entities
+        Set<Role> newRoles = roleNames.stream()
+                .map(roleName -> {
+                    AppRole appRole = AppRole.valueOf(roleName); // validate against enum
+                    return roleRepository.findByRoleName(appRole)
+                            .orElseThrow(() -> new RuntimeException("Role not found: " + roleName));
+                })
+                .collect(Collectors.toSet());
+
+        // Replace old roles with new ones
+        user.setRoles(newRoles);
+
         userRepository.save(user);
     }
 
@@ -68,30 +120,12 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public UserDTO getUserById(UUID id) {
+    public UserResponse getUserById(UUID id) {
         User user = userRepository.findById(id).orElseThrow();
-        return convertToDto(user);
+        return userMapper.toResponse(user);
     }
 
-    private UserDTO convertToDto(User user) {
-        return new UserDTO(
-                user.getUserId(),
-                user.getUserName(),
-                user.getEmail(),
-                user.isAccountNonLocked(),
-                user.isAccountNonExpired(),
-                user.isCredentialsNonExpired(),
-                user.isEnabled(),
-                user.getCredentialsExpiryDate(),
-                user.getAccountExpiryDate(),
-                user.getTwoFactorSecret(),
-                user.isTwoFactorEnabled(),
-                user.getSignUpMethod(),
-                user.getRole(),
-                user.getCreatedDate(),
-                user.getUpdatedDate()
-        );
-    }
+
 
     @Override
     public User findByUsername(String username) {

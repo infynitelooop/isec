@@ -1,14 +1,16 @@
 package com.infyniteloop.isec.security.jwt;
 
+import com.infyniteloop.isec.security.models.User;
+import com.infyniteloop.isec.security.repository.UserRepository;
 import io.jsonwebtoken.*;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
-import javax.crypto.SecretKey;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.Date;
@@ -22,11 +24,13 @@ public class JwtUtils {
 
     private final PrivateKey privateKey;
     private final PublicKey publicKey;
+    private final UserRepository userRepository;
 
     // Spring injects the PublicKey bean here from JwtConfig
-    public JwtUtils(PrivateKey privateKey, PublicKey publicKey) {
+    public JwtUtils(PrivateKey privateKey, PublicKey publicKey, UserRepository userRepository) {
         this.publicKey = publicKey;
         this.privateKey = privateKey;
+        this.userRepository = userRepository;
     }
 
 
@@ -41,8 +45,15 @@ public class JwtUtils {
 
     public String generateTokenFromUsername(UserDetails userDetails) {
         String username = userDetails.getUsername();
+
+        // Load the full user from DB to get tenantId and roles
+        User user = userRepository.findByUserName(userDetails.getUsername())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
         return Jwts.builder()
                 .subject(username)
+                .claim("roles", user.getRoles())
+                .claim("tenantId", user.getTenantId().toString()) // U
                 .issuedAt(new Date())
                 .expiration(new Date((new Date()).getTime() + jwtExpirationMs))
                 .signWith(privateKey)

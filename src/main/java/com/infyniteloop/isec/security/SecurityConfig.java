@@ -32,6 +32,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -168,7 +169,7 @@ public class SecurityConfig {
                 user1.setAccountExpiryDate(LocalDate.now().plusYears(1));
                 user1.setTwoFactorEnabled(false);
                 user1.setSignUpMethod("email");
-                user1.setRole(userRole);
+                user1.setRoles(Set.of(userRole));
                 user1.setTenantId(tenant_Ndls.getId());
                 userRepository.save(user1);
             }
@@ -183,7 +184,7 @@ public class SecurityConfig {
                 admin.setAccountExpiryDate(LocalDate.now().plusYears(1));
                 admin.setTwoFactorEnabled(false);
                 admin.setSignUpMethod("email");
-                admin.setRole(adminRole);
+                admin.setRoles(Set.of(userRole, adminRole));
                 admin.setTenantId(tenant_Ndls.getId());
                 userRepository.save(admin);
             }
@@ -198,7 +199,7 @@ public class SecurityConfig {
                 admin.setAccountExpiryDate(LocalDate.now().plusYears(1));
                 admin.setTwoFactorEnabled(false);
                 admin.setSignUpMethod("email");
-                admin.setRole(adminRole);
+                admin.setRoles(Set.of(userRole, adminRole));
                 admin.setTenantId(tenant_Ndls.getId());
                 userRepository.save(admin);
             }

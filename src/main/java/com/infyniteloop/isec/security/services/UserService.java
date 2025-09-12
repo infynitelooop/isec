@@ -3,6 +3,8 @@ package com.infyniteloop.isec.security.services;
 
 
 import com.infyniteloop.isec.security.dtos.UserDTO;
+import com.infyniteloop.isec.security.dtos.UserRequest;
+import com.infyniteloop.isec.security.dtos.UserResponse;
 import com.infyniteloop.isec.security.models.Role;
 import com.infyniteloop.isec.security.models.User;
 import com.warrenstrange.googleauth.GoogleAuthenticatorKey;
@@ -11,11 +13,14 @@ import java.util.List;
 import java.util.UUID;
 
 public interface UserService {
-    void updateUserRole(UUID userId, String roleName);
+
+    UserResponse updateUser(UUID userId, UserRequest request);
+
+    void updateUserRoles(UUID userId, List<String> roleNames);
 
     List<User> getAllUsers();
 
-    UserDTO getUserById(UUID id);
+    UserResponse getUserById(UUID id);
 
     User findByUsername(String username);
 
