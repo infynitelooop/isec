@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public record RoomRequest(
+
         @NotBlank(message = "roomNumber cannot be blank")
         String roomNumber,
 

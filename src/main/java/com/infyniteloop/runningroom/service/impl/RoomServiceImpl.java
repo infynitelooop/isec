@@ -1,14 +1,15 @@
 package com.infyniteloop.runningroom.service.impl;
 
-import com.infyniteloop.runningroom.model.Room;
-import com.infyniteloop.runningroom.model.RoomAllocation;
 import com.infyniteloop.runningroom.dto.RoomRequest;
 import com.infyniteloop.runningroom.dto.RoomResponse;
+import com.infyniteloop.runningroom.model.Room;
 import com.infyniteloop.runningroom.model.mapper.RoomMapper;
 import com.infyniteloop.runningroom.repository.RoomRepository;
+import com.infyniteloop.runningroom.security.TenantFilter;
 import com.infyniteloop.runningroom.service.RoomService;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 
@@ -22,28 +23,23 @@ public class RoomServiceImpl implements RoomService {
         this.roomRepository = roomRepository;
         this.roomMapper = roomMapper;
     }
-    @Override
-    public void allocateRoom(String userId, String roomNumber) {
-        // Implementation for allocating a room to a user
-        RoomAllocation roomAllocation = new RoomAllocation();
-
-
-
-        // Set properties of roomAllocation as needed
-
-        // Save roomAllocation to the database
-
-    }
 
     @Override
-    public void deallocateRoom(String userId) {
+    public RoomResponse createRoom(RoomRequest roomRequest) {
 
-    }
+        // Get tenantId from ThreadLocal
+        UUID tenantId = TenantFilter.CURRENT_TENANT.get();
+        if (tenantId == null) {
+            throw new IllegalStateException("No tenant context found");
+        }
 
-    @Override
-    public RoomResponse createRoom(RoomRequest roomRequest, UUID tenantId) {
+        //check before saving to provide a friendly error instead of waiting for the DB exception
+        if (roomRepository.existsByRoomNumberAndTenantId(roomRequest.roomNumber(), tenantId)) {
+            throw new IllegalArgumentException("Room number already exists");
+        }
 
         Room room = roomMapper.toEntity(roomRequest, tenantId);
+        room.setTenantId(tenantId); // automatically set tenant
         Room saved = roomRepository.save(room);
         return roomMapper.toResponse(saved);
 
@@ -51,16 +47,42 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     public RoomResponse updateRoom(RoomRequest roomRequest) {
-        return null;
+
+        UUID tenantId = TenantFilter.CURRENT_TENANT.get();
+        if (tenantId == null) {
+            throw new IllegalStateException("TenantId not found in request context");
+        }
+
+        // Fetch existing room
+        Room existingRoom = roomRepository.findByRoomNumber(roomRequest.roomNumber())
+                .orElseThrow(() -> new RuntimeException("Room not found"));
+
+        // Map fields from DTO to entity
+        RoomMapper.updateRoomFromDto(roomRequest, existingRoom);
+
+        Room saved = roomRepository.save(existingRoom);
+        return roomMapper.toResponse(saved);
     }
 
     @Override
-    public Room deleteRoom(String roomId) {
-        return null;
+    public RoomResponse deleteRoom(String roomId) {
+        Room room = roomRepository.findById(UUID.fromString(roomId))
+                .orElseThrow(() -> new RuntimeException("Room not found"));
+        roomRepository.delete(room);
+        return roomMapper.toResponse(room);
     }
 
     @Override
-    public RoomResponse getRoomByNumber(String roomNumber) {
-        return null;
+    public RoomResponse getRoom(String roomId) {
+        Room room = roomRepository.findById(UUID.fromString(roomId))
+                .orElseThrow(() -> new RuntimeException("Room not found"));
+        return roomMapper.toResponse(room);
+    }
+
+    @Override
+    public List<RoomResponse> getAllRooms() {
+        return roomRepository.findAll().stream()
+                .map(roomMapper::toResponse)
+                .toList();
     }
 }
