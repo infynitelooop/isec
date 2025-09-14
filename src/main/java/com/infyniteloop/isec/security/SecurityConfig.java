@@ -152,10 +152,17 @@ public class SecurityConfig {
                     .orElseGet(() -> tenantRepository.save(new Tenant("LKO")));
 
 
-            roomRepository.findByRoomNumber("101")
-                    .orElseGet(() -> roomRepository.save(new Room("101", tenant_Ndls.getId())));
-            roomRepository.findByRoomNumber("102")
-                    .orElseGet(() -> roomRepository.save(new Room("102", tenant_Ndls.getId())));
+            roomRepository.findByRoomNumber("N101")
+                    .orElseGet(() -> roomRepository.save(new Room("N101", tenant_Ndls.getId())));
+            roomRepository.findByRoomNumber("N102")
+                    .orElseGet(() -> roomRepository.save(new Room("N102", tenant_Ndls.getId())));
+            roomRepository.findByRoomNumber("L103")
+                    .orElseGet(() -> roomRepository.save(new Room("L103", tenant_Lko.getId())));
+            roomRepository.findByRoomNumber("L104")
+                    .orElseGet(() -> roomRepository.save(new Room("L104", tenant_Lko.getId())));
+
+
+
 
 
 
@@ -200,7 +207,7 @@ public class SecurityConfig {
                 admin.setTwoFactorEnabled(false);
                 admin.setSignUpMethod("email");
                 admin.setRoles(Set.of(userRole, adminRole));
-                admin.setTenantId(tenant_Ndls.getId());
+                admin.setTenantId(tenant_Lko.getId());
                 userRepository.save(admin);
             }
         };

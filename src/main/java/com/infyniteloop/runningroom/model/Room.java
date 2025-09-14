@@ -6,16 +6,27 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Filter;
+import org.hibernate.annotations.FilterDef;
+import org.hibernate.annotations.ParamDef;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 
+/**
+ ** Entity representing a Room in the system.
+ */
+
 @Entity
-@Table(name = "rooms")
+@Table(name = "rooms", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"roomNumber", "tenantId"})
+})
 @Getter
 @Setter
 @NoArgsConstructor
+@FilterDef(name = "tenantFilter", parameters = @ParamDef(name = "tenantId", type = UUID.class)) // Define the filter
+@Filter(name = "tenantFilter", condition = "tenant_id = :tenantId") // Apply the filter condition
 public class Room {
 
     @Id
