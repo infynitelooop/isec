@@ -3,12 +3,15 @@ package com.infyniteloop.runningroom.security;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.hibernate.Session;
+import org.springframework.orm.jpa.EntityManagerHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -29,12 +32,12 @@ public class TenantFilter extends OncePerRequestFilter {
     public static final ThreadLocal<UUID> CURRENT_TENANT = new ThreadLocal<>();
 
     private final PublicKey publicKey;
-    private final EntityManager entityManager;
+    private final EntityManagerFactory entityManagerFactory;
 
 
-    public TenantFilter(PublicKey publicKey, EntityManager entityManager) {
-        this.entityManager = entityManager;
+    public TenantFilter(PublicKey publicKey, EntityManagerFactory entityManagerFactory) {
         this.publicKey = publicKey;
+        this.entityManagerFactory = entityManagerFactory;
     }
 
 
@@ -58,10 +61,36 @@ public class TenantFilter extends OncePerRequestFilter {
                 // store in ThreadLocal
                 CURRENT_TENANT.set(tenantId);
 
-                // enable Hibernate filter automatically for this request
-                Session session = entityManager.unwrap(Session.class);
-                session.enableFilter("tenantFilter")
-                        .setParameter("tenantId", tenantId);
+
+                // Enable Hibernate filter in the session for multi-tenancy here so that it is called before any repository is used.
+
+                // In Spring/JPA the actual Session/EntityManager that will be used by repositories is created/bound later
+                // (usually when a transaction is started or when an EntityManager is bound to the request by OpenEntityManagerInViewFilter).
+                // So we cannot just unwrap the EntityManager injected here and enable the filter on it.
+                // We need to enable the filter on the actual Session that will be used by the repositories.
+                // We need to do it before the repositories are called, so we do it here in the filter.
+
+
+                // 1) try to get an EntityManager already bound to this thread (if any)
+                EntityManagerHolder emHolder =
+                        (EntityManagerHolder) TransactionSynchronizationManager.getResource(entityManagerFactory);
+
+                if (emHolder == null) {
+                    // No EntityManager bound; create one and bind it for the duration of this request.
+
+                    // Create an EntityManager.
+                    // Wrap it in an EntityManagerHolder (Spring’s wrapper).
+                    // Register it with TransactionSynchronizationManager under the key entityManagerFactory.
+                    // After this, whenever your repositories (JpaRepository, etc.) run inside the same thread, they will pick up that same EntityManager instead of creating a new one.
+                    EntityManager em = entityManagerFactory.createEntityManager();
+                    emHolder = new EntityManagerHolder(em);
+                    TransactionSynchronizationManager.bindResource(entityManagerFactory, emHolder);
+                }
+
+                // 2) unwrap session from the bound EntityManager and enable filter
+                EntityManager emBound = emHolder.getEntityManager();
+                Session session = emBound.unwrap(Session.class);
+                session.enableFilter("tenantFilter").setParameter("tenantId", tenantId);
             }
 
             filterChain.doFilter(request, response);
