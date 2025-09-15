@@ -15,7 +15,7 @@ import java.util.UUID;
 
 
 /**
- ** Entity representing a Room in the system.
+ * * Entity representing a Room in the system.
  */
 
 @Entity
