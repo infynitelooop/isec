@@ -1,28 +1,39 @@
 package com.infyniteloop.isec.security.jwt;
 
+import com.infyniteloop.isec.security.models.User;
+import com.infyniteloop.isec.security.repository.UserRepository;
 import io.jsonwebtoken.*;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
-import javax.crypto.SecretKey;
-import java.security.Key;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.util.Date;
+import java.util.List;
 
 @Component
 public class JwtUtils {
     private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
 
-    @Value("${spring.app.jwtSecret}")
-    private String jwtSecret;
-
     @Value("${spring.app.jwtExpirationMs}")
     private int jwtExpirationMs;
+
+    private final PrivateKey privateKey;
+    private final PublicKey publicKey;
+    private final UserRepository userRepository;
+
+    // Spring injects the PublicKey bean here from JwtConfig
+    public JwtUtils(PrivateKey privateKey, PublicKey publicKey, UserRepository userRepository) {
+        this.publicKey = publicKey;
+        this.privateKey = privateKey;
+        this.userRepository = userRepository;
+    }
+
 
     public String getJwtFromHeader(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
@@ -35,30 +46,36 @@ public class JwtUtils {
 
     public String generateTokenFromUsername(UserDetails userDetails) {
         String username = userDetails.getUsername();
+
+        // Load the full user from DB to get tenantId and roles
+        User user = userRepository.findByUserName(userDetails.getUsername())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        List<String> roleNames = user.getRoles()
+                .stream()
+                .map(role -> role.getRoleName().name()) // AppRole enum name
+                .toList();
+
         return Jwts.builder()
                 .subject(username)
+                .claim("roles", roleNames)
+                .claim("tenantId", user.getTenantId().toString()) // U
                 .issuedAt(new Date())
                 .expiration(new Date((new Date()).getTime() + jwtExpirationMs))
-                .signWith(key())
+                .signWith(privateKey)
                 .compact();
     }
 
     public String getUserNameFromJwtToken(String token) {
-        return Jwts.parser()
-                        .verifyWith((SecretKey) key())
-                .build().parseSignedClaims(token)
+        return getJwtClaims(token)
                 .getPayload().getSubject();
     }
 
-    private Key key() {
-        return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
-    }
+
 
     public boolean validateJwtToken(String authToken) {
         try {
-            System.out.println("Validate");
-            Jwts.parser().verifyWith((SecretKey) key())
-                    .build().parseSignedClaims(authToken);
+            getJwtClaims(authToken);
             return true;
         } catch (MalformedJwtException e) {
             logger.error("Invalid JWT token: {}", e.getMessage());
@@ -70,5 +87,10 @@ public class JwtUtils {
             logger.error("JWT claims string is empty: {}", e.getMessage());
         }
         return false;
+    }
+
+    private Jws<Claims> getJwtClaims(String authToken) {
+        return Jwts.parser().verifyWith(publicKey)
+                .build().parseSignedClaims(authToken);
     }
 }
