@@ -2,6 +2,8 @@ package com.infyniteloop.runningroom.service.impl;
 
 import com.infyniteloop.runningroom.dto.RoomRequest;
 import com.infyniteloop.runningroom.dto.RoomResponse;
+import com.infyniteloop.runningroom.exception.DuplicateResourceException;
+import com.infyniteloop.runningroom.exception.NotFoundException;
 import com.infyniteloop.runningroom.model.Room;
 import com.infyniteloop.runningroom.model.mapper.RoomMapper;
 import com.infyniteloop.runningroom.repository.RoomRepository;
@@ -18,6 +20,7 @@ import java.util.UUID;
 @Service
 public class RoomServiceImpl implements RoomService {
 
+    public static final String ROOM_NOT_FOUND = "Room not found";
     private final RoomRepository roomRepository;
     private final RoomMapper roomMapper;
     private final EntityManager entityManager;
@@ -41,12 +44,12 @@ public class RoomServiceImpl implements RoomService {
         // Get tenantId from ThreadLocal
         UUID tenantId = TenantFilter.CURRENT_TENANT.get();
         if (tenantId == null) {
-            throw new IllegalStateException("No tenant context found");
+            throw new NotFoundException("No tenant context found");
         }
 
         //check before saving to provide a friendly error instead of waiting for the DB exception
         if (roomRepository.existsByRoomNumberAndTenantId(roomRequest.roomNumber(), tenantId)) {
-            throw new IllegalArgumentException("Room number already exists");
+            throw new DuplicateResourceException("Room number already exists for tenant " + tenantId);
         }
 
         Room room = roomMapper.toEntity(roomRequest, tenantId);
@@ -61,13 +64,13 @@ public class RoomServiceImpl implements RoomService {
 
         UUID tenantId = TenantFilter.CURRENT_TENANT.get();
         if (tenantId == null) {
-            throw new IllegalStateException("TenantId not found in request context");
+            throw new NotFoundException("TenantId not found in request context");
         }
 
         enableTenantFilter();
         // Fetch existing room
         Room existingRoom = roomRepository.findByRoomNumber(roomRequest.roomNumber())
-                .orElseThrow(() -> new RuntimeException("Room not found"));
+                .orElseThrow(() -> new NotFoundException(ROOM_NOT_FOUND));
 
         // Map fields from DTO to entity
         RoomMapper.updateRoomFromDto(roomRequest, existingRoom);
@@ -80,7 +83,7 @@ public class RoomServiceImpl implements RoomService {
     public RoomResponse deleteRoom(String roomId) {
         enableTenantFilter();
         Room room = roomRepository.findById(UUID.fromString(roomId))
-                .orElseThrow(() -> new RuntimeException("Room not found"));
+                .orElseThrow(() -> new NotFoundException(ROOM_NOT_FOUND));
         roomRepository.delete(room);
         return roomMapper.toResponse(room);
     }
@@ -89,7 +92,7 @@ public class RoomServiceImpl implements RoomService {
     public RoomResponse getRoom(String roomId) {
         enableTenantFilter();
         Room room = roomRepository.findById(UUID.fromString(roomId))
-                .orElseThrow(() -> new RuntimeException("Room not found"));
+                .orElseThrow(() -> new NotFoundException(ROOM_NOT_FOUND));
         return roomMapper.toResponse(room);
     }
 
