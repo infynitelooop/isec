@@ -7,6 +7,8 @@ import com.infyniteloop.runningroom.model.mapper.RoomMapper;
 import com.infyniteloop.runningroom.repository.RoomRepository;
 import com.infyniteloop.runningroom.security.TenantFilter;
 import com.infyniteloop.runningroom.service.RoomService;
+import jakarta.persistence.EntityManager;
+import org.hibernate.Session;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,10 +20,19 @@ public class RoomServiceImpl implements RoomService {
 
     private final RoomRepository roomRepository;
     private final RoomMapper roomMapper;
+    private final EntityManager entityManager;
 
-    public RoomServiceImpl(RoomRepository roomRepository, RoomMapper roomMapper) {
+    public RoomServiceImpl(RoomRepository roomRepository, RoomMapper roomMapper, EntityManager entityManager) {
+        this.entityManager = entityManager;
         this.roomRepository = roomRepository;
         this.roomMapper = roomMapper;
+    }
+
+    // Enable tenant filter for current session
+    private void enableTenantFilter() {
+        UUID tenantId = TenantFilter.CURRENT_TENANT.get();
+        Session session = entityManager.unwrap(Session.class);
+        session.enableFilter("tenantFilter").setParameter("tenantId", tenantId);
     }
 
     @Override
@@ -53,6 +64,7 @@ public class RoomServiceImpl implements RoomService {
             throw new IllegalStateException("TenantId not found in request context");
         }
 
+        enableTenantFilter();
         // Fetch existing room
         Room existingRoom = roomRepository.findByRoomNumber(roomRequest.roomNumber())
                 .orElseThrow(() -> new RuntimeException("Room not found"));
@@ -66,6 +78,7 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     public RoomResponse deleteRoom(String roomId) {
+        enableTenantFilter();
         Room room = roomRepository.findById(UUID.fromString(roomId))
                 .orElseThrow(() -> new RuntimeException("Room not found"));
         roomRepository.delete(room);
@@ -74,6 +87,7 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     public RoomResponse getRoom(String roomId) {
+        enableTenantFilter();
         Room room = roomRepository.findById(UUID.fromString(roomId))
                 .orElseThrow(() -> new RuntimeException("Room not found"));
         return roomMapper.toResponse(room);
@@ -81,6 +95,7 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     public List<RoomResponse> getAllRooms() {
+        enableTenantFilter();
         return roomRepository.findAll().stream()
                 .map(roomMapper::toResponse)
                 .toList();
