@@ -17,6 +17,9 @@ public record RoomRequest(
         @Min(value = 1, message = "capacity must be at least 1")
         int capacity,
 
+        @Min(value = 1, message = "capacity must be at least 1")
+        int floor,
+
         @NotNull(message = "status cannot be null")
         RoomStatus status
 ) {}

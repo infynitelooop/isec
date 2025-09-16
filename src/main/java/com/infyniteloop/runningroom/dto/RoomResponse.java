@@ -10,6 +10,7 @@ public record RoomResponse(
         String roomNumber,
         RoomType roomType,
         int capacity,
+        int floor,
         RoomStatus status,
         String tenantId   // optional: include only if admins need it
 ) {}

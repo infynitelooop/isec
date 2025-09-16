@@ -39,7 +39,11 @@ public class Room {
     @Enumerated(EnumType.STRING)
     private RoomType type = RoomType.SINGLE;
 
-    private int capacity = 2;
+    @Column(nullable = false)
+    private int capacity = 1;
+
+    @Column(nullable = false)
+    private int floor = 0;
 
     @Enumerated(EnumType.STRING)
     private RoomStatus status = RoomStatus.AVAILABLE;
