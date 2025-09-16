@@ -32,6 +32,7 @@ import java.util.*;
 
 //TODO: - `POST /auth/refresh-token` - Refresh JWT token
 //TODO: - `POST /auth/logout` - User logout
+
 /**
  * Controller for handling authentication and user registration.
  */
@@ -128,35 +129,24 @@ public class AuthController {
 
         // Create new user's account
         User user = new User(signUpRequest.getUsername(),
-                signUpRequest.getEmail(),
-                encoder.encode(signUpRequest.getPassword()));
+                signUpRequest.getEmail(), encoder.encode(signUpRequest.getPassword()),
+                signUpRequest.getFirstName(), signUpRequest.getLastName(), signUpRequest.getPhone());
 
-        Set<String> strRoles = signUpRequest.getRole();
-        Role role;
 
-        if (strRoles == null || strRoles.isEmpty()) {
-            role = roleRepository.findByRoleName(AppRole.ROLE_USER)
-                    .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-        } else {
-            String roleStr = strRoles.iterator().next();
-            if (roleStr.equals("admin")) {
-                role = roleRepository.findByRoleName(AppRole.ROLE_ADMIN)
-                        .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-            } else {
-                role = roleRepository.findByRoleName(AppRole.ROLE_USER)
-                        .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-            }
-
-            user.setAccountNonLocked(true);
-            user.setAccountNonExpired(true);
-            user.setCredentialsNonExpired(true);
-            user.setEnabled(true);
-            user.setCredentialsExpiryDate(LocalDate.now().plusYears(1));
-            user.setAccountExpiryDate(LocalDate.now().plusYears(1));
-            user.setTwoFactorEnabled(false);
-            user.setSignUpMethod("email");
-        }
+        //By default, assign CREW role to every new user
+        Role role = roleRepository.findByRoleName(AppRole.ROLE_CREW)
+                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
         user.getRoles().add(role);
+
+        user.setAccountNonLocked(true);
+        user.setAccountNonExpired(true);
+        user.setCredentialsNonExpired(true);
+        user.setEnabled(true);
+        user.setCredentialsExpiryDate(LocalDate.now().plusYears(1));
+        user.setAccountExpiryDate(LocalDate.now().plusYears(1));
+        user.setTwoFactorEnabled(false);
+        user.setSignUpMethod("email");
+
         userRepository.save(user);
 
         return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
@@ -182,6 +172,9 @@ public class AuthController {
                 user.getUserId(),
                 user.getUserName(),
                 user.getEmail(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getPhone(),
                 user.isAccountNonLocked(),
                 user.isAccountNonExpired(),
                 user.isCredentialsNonExpired(),
@@ -219,11 +212,11 @@ public class AuthController {
      * @return ResponseEntity with success or error message.
      */
     @PostMapping("/public/forgot-password")
-    public ResponseEntity<?> forgotPassword(@RequestParam String email){
-        try{
+    public ResponseEntity<?> forgotPassword(@RequestParam String email) {
+        try {
             userService.generatePasswordResetToken(email);
             return ResponseEntity.ok(new MessageResponse("Password reset email sent!"));
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new MessageResponse("Error sending password reset email"));
@@ -286,7 +279,7 @@ public class AuthController {
     @GetMapping("/user/2fa-status")
     public ResponseEntity<?> get2FAStatus() {
         User user = authUtil.loggedInUser();
-        if (user != null){
+        if (user != null) {
             return ResponseEntity.ok().body(Map.of("is2faEnabled", user.isTwoFactorEnabled()));
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
