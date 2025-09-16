@@ -11,6 +11,8 @@ import com.infyniteloop.runningroom.security.TenantFilter;
 import com.infyniteloop.runningroom.service.RoomService;
 import jakarta.persistence.EntityManager;
 import org.hibernate.Session;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,6 +21,8 @@ import java.util.UUID;
 
 @Service
 public class RoomServiceImpl implements RoomService {
+
+    private static final Logger log = LoggerFactory.getLogger(RoomServiceImpl.class);
 
     public static final String ROOM_NOT_FOUND = "Room not found";
     private final RoomRepository roomRepository;
