@@ -15,6 +15,9 @@ public class UserInfoResponse {
     private UUID id;
     private String username;
     private String email;
+    private String firstName;
+    private String lastName;
+    private String phone;
     private boolean accountNonLocked;
     private boolean accountNonExpired;
     private boolean credentialsNonExpired;
@@ -24,12 +27,15 @@ public class UserInfoResponse {
     private boolean isTwoFactorEnabled;
     private List<String> roles;
 
-    public UserInfoResponse(UUID id, String username, String email, boolean accountNonLocked, boolean accountNonExpired,
+    public UserInfoResponse(UUID id, String username, String email, String firstName, String lastName, String phone, boolean accountNonLocked, boolean accountNonExpired,
                             boolean credentialsNonExpired, boolean enabled, LocalDate credentialsExpiryDate,
                             LocalDate accountExpiryDate, boolean isTwoFactorEnabled, List<String> roles) {
         this.id = id;
         this.username = username;
         this.email = email;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.phone = phone;
         this.accountNonLocked = accountNonLocked;
         this.accountNonExpired = accountNonExpired;
         this.credentialsNonExpired = credentialsNonExpired;

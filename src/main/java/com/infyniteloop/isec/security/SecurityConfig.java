@@ -145,6 +145,9 @@ public class SecurityConfig {
             Role adminRole = roleRepository.findByRoleName(AppRole.ROLE_ADMIN)
                     .orElseGet(() -> roleRepository.save(new Role(AppRole.ROLE_ADMIN)));
 
+            Role crewRole = roleRepository.findByRoleName(AppRole.ROLE_CREW)
+                    .orElseGet(() -> roleRepository.save(new Role(AppRole.ROLE_CREW)));
+
 
             Tenant tenant_Ndls = tenantRepository.findByTenantName("NDLS")
                     .orElseGet(() -> tenantRepository.save(new Tenant("NDLS")));
@@ -168,7 +171,8 @@ public class SecurityConfig {
 
 
             if (!userRepository.existsByUserName("user1")) {
-                User user1 = new User("user1", "user1@example.com", passwordEncoder.encode("password1"));
+                User user1 = new User("user1", "user1@example.com", passwordEncoder.encode("password1"),
+                        "Rajiv","Pandey","9876543210");
                 user1.setAccountNonLocked(false);
                 user1.setAccountNonExpired(true);
                 user1.setCredentialsNonExpired(true);
@@ -183,7 +187,8 @@ public class SecurityConfig {
             }
 
             if (!userRepository.existsByUserName("admin")) {
-                User admin = new User("admin", "admin@example.com", passwordEncoder.encode("adminPass"));
+                User admin = new User("admin", "admin@example.com", passwordEncoder.encode("adminPass"),
+                        "Super","Admin","9876543211");
                 admin.setAccountNonLocked(true);
                 admin.setAccountNonExpired(true);
                 admin.setCredentialsNonExpired(true);
@@ -198,7 +203,8 @@ public class SecurityConfig {
             }
 
             if (!userRepository.existsByUserName("rangasanju")) {
-                User admin = new User("rangasanju", "sanjay.ranga.au@gmail.com", passwordEncoder.encode("adminPass"));
+                User admin = new User("rangasanju", "sanjay.ranga.au@gmail.com", passwordEncoder.encode("adminPass"),
+                        "Sanjay","Ranga","9876543212");
                 admin.setAccountNonLocked(true);
                 admin.setAccountNonExpired(true);
                 admin.setCredentialsNonExpired(true);
@@ -209,6 +215,22 @@ public class SecurityConfig {
                 admin.setSignUpMethod("email");
                 admin.setRoles(Set.of(userRole, adminRole));
                 admin.setTenantId(tenant_Lko.getId());
+                userRepository.save(admin);
+            }
+
+            if (!userRepository.existsByUserName("RTM1001")) {
+                User admin = new User("RTM1001", "rtm1001@gmail.com", passwordEncoder.encode("password1"),
+                        "John","Wick","9876543212");
+                admin.setAccountNonLocked(true);
+                admin.setAccountNonExpired(true);
+                admin.setCredentialsNonExpired(true);
+                admin.setEnabled(true);
+                admin.setCredentialsExpiryDate(LocalDate.now().plusYears(1));
+                admin.setAccountExpiryDate(LocalDate.now().plusYears(1));
+                admin.setTwoFactorEnabled(false);
+                admin.setSignUpMethod("email");
+                admin.setRoles(Set.of(userRole, crewRole));
+                admin.setTenantId(null);
                 userRepository.save(admin);
             }
         };
