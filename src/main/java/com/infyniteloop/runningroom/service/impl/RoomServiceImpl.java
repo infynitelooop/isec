@@ -53,7 +53,8 @@ public class RoomServiceImpl implements RoomService {
 
         //check before saving to provide a friendly error instead of waiting for the DB exception
         if (roomRepository.existsByRoomNumberAndTenantId(roomRequest.roomNumber(), tenantId)) {
-            throw new DuplicateResourceException("Room number already exists for tenant " + tenantId);
+            log.info("Room number already exists for tenant {}", tenantId);
+            throw new DuplicateResourceException("Room number already exists");
         }
 
         Room room = roomMapper.toEntity(roomRequest, tenantId);
