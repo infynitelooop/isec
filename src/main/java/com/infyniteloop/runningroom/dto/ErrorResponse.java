@@ -1,4 +1,4 @@
-package com.infyniteloop.runningroom.exception.dto;
+package com.infyniteloop.runningroom.dto;
 
 import java.time.Instant;
 
