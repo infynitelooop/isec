@@ -1,8 +1,8 @@
 package com.infyniteloop.runningroom.model.mapper;
 
-import com.infyniteloop.runningroom.model.Room;
 import com.infyniteloop.runningroom.dto.RoomRequest;
 import com.infyniteloop.runningroom.dto.RoomResponse;
+import com.infyniteloop.runningroom.model.Room;
 import org.mapstruct.Context;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -16,6 +16,15 @@ public interface RoomMapper {
         existingRoom.setCapacity(roomRequest.capacity());
         existingRoom.setStatus(roomRequest.status());
         existingRoom.setType(roomRequest.roomType());
+        existingRoom.setAc(roomRequest.ac());
+        existingRoom.setBeds(roomRequest.beds());
+        existingRoom.setBuildingName(roomRequest.buildingName());
+        existingRoom.setCrewType(roomRequest.crewType());
+        existingRoom.setDescription(roomRequest.description());
+        existingRoom.setFloor(roomRequest.floor());
+        existingRoom.setRoomCategory(roomRequest.roomCategory());
+        existingRoom.setRoomNumber(roomRequest.roomNumber());
+        existingRoom.setAttachment(roomRequest.attachment());
     }
 
     // request -> entity

@@ -33,6 +33,7 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -149,25 +150,20 @@ public class SecurityConfig {
                     .orElseGet(() -> roleRepository.save(new Role(AppRole.ROLE_CREW)));
 
 
-            Tenant tenant_Ndls = tenantRepository.findByTenantName("NDLS")
+            Tenant tenantNdls = tenantRepository.findByTenantName("NDLS")
                     .orElseGet(() -> tenantRepository.save(new Tenant("NDLS")));
 
-            Tenant tenant_Lko = tenantRepository.findByTenantName("LKO")
+            Tenant tenantLko = tenantRepository.findByTenantName("LKO")
                     .orElseGet(() -> tenantRepository.save(new Tenant("LKO")));
 
-
             roomRepository.findByRoomNumber("N101")
-                    .orElseGet(() -> roomRepository.save(new Room("N101", tenant_Ndls.getId())));
+                    .orElseGet(() -> roomRepository.save(build("N101", tenantNdls.getId())));
             roomRepository.findByRoomNumber("N102")
-                    .orElseGet(() -> roomRepository.save(new Room("N102", tenant_Ndls.getId())));
+                    .orElseGet(() -> roomRepository.save(build("N102", tenantNdls.getId())));
             roomRepository.findByRoomNumber("L103")
-                    .orElseGet(() -> roomRepository.save(new Room("L103", tenant_Lko.getId())));
+                    .orElseGet(() -> roomRepository.save(build("L103", tenantLko.getId())));
             roomRepository.findByRoomNumber("L104")
-                    .orElseGet(() -> roomRepository.save(new Room("L104", tenant_Lko.getId())));
-
-
-
-
+                    .orElseGet(() -> roomRepository.save(build("L104", tenantLko.getId())));
 
 
             if (!userRepository.existsByUserName("user1")) {
@@ -182,7 +178,7 @@ public class SecurityConfig {
                 user1.setTwoFactorEnabled(false);
                 user1.setSignUpMethod("email");
                 user1.setRoles(Set.of(userRole));
-                user1.setTenantId(tenant_Ndls.getId());
+                user1.setTenantId(tenantNdls.getId());
                 userRepository.save(user1);
             }
 
@@ -198,7 +194,7 @@ public class SecurityConfig {
                 admin.setTwoFactorEnabled(false);
                 admin.setSignUpMethod("email");
                 admin.setRoles(Set.of(userRole, adminRole));
-                admin.setTenantId(tenant_Ndls.getId());
+                admin.setTenantId(tenantNdls.getId());
                 userRepository.save(admin);
             }
 
@@ -214,7 +210,7 @@ public class SecurityConfig {
                 admin.setTwoFactorEnabled(false);
                 admin.setSignUpMethod("email");
                 admin.setRoles(Set.of(userRole, adminRole));
-                admin.setTenantId(tenant_Lko.getId());
+                admin.setTenantId(tenantLko.getId());
                 userRepository.save(admin);
             }
 
@@ -237,6 +233,11 @@ public class SecurityConfig {
     }
 
 
-
+    private Room build(String roomNumber, UUID tenantId) {
+        Room room = new Room();
+        room.setRoomNumber(roomNumber);
+        room.setTenantId(tenantId);
+        return room;
+    }
 
 }

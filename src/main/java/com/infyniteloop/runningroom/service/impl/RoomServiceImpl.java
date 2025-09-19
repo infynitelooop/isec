@@ -104,8 +104,10 @@ public class RoomServiceImpl implements RoomService {
     @Override
     public List<RoomResponse> getAllRooms() {
         enableTenantFilter();
-        return roomRepository.findAll().stream()
+        List<Room> roomList = roomRepository.findAll();
+        List<RoomResponse> list = roomList.stream()
                 .map(roomMapper::toResponse)
                 .toList();
+        return list;
     }
 }
