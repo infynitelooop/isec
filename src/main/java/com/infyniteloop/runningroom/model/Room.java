@@ -1,10 +1,21 @@
 package com.infyniteloop.runningroom.model;
 
-import com.infyniteloop.runningroom.model.types.RoomType;
+import com.infyniteloop.runningroom.model.types.AttachmentType;
+import com.infyniteloop.runningroom.model.types.CrewType;
+import com.infyniteloop.runningroom.model.types.RoomCategory;
 import com.infyniteloop.runningroom.model.types.RoomStatus;
-import jakarta.persistence.*;
+import com.infyniteloop.runningroom.model.types.RoomType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import lombok.Setter;
 import org.hibernate.annotations.Filter;
 import org.hibernate.annotations.FilterDef;
@@ -33,28 +44,42 @@ public class Room {
     @GeneratedValue
     private UUID id;
 
+    @NonNull
     @Column(nullable = false)
     private String roomNumber;
 
     @Enumerated(EnumType.STRING)
     private RoomType type = RoomType.SINGLE;
 
-    @Column(nullable = false)
+    private boolean ac = true; // AC or Non-AC
+
     private int capacity = 1;
 
-    @Column(nullable = false)
     private int floor = 0;
+
+    private int beds = 0;
+
+    private String buildingName = "A";
 
     @Enumerated(EnumType.STRING)
     private RoomStatus status = RoomStatus.AVAILABLE;
 
+    @Column(length = 500)
+    private String description;
+
+    @Enumerated(EnumType.STRING)
+    private CrewType crewType = CrewType.LOCO_PILOT; // e.g., LOCO PILOT, GUARD, ETC
+
+    @Enumerated(EnumType.STRING)
+    private RoomCategory roomCategory = RoomCategory.MALE; // MALE/FEMALE
+
+    @Enumerated(EnumType.STRING)
+    private AttachmentType attachment = AttachmentType.I; // Toilet type INDIAN/ WESTERN/ COMMON
+
+    @NonNull
     @Column(nullable = false)
     private UUID tenantId;
 
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    public Room(String roomNumber, UUID tenantId) {
-        this.roomNumber = roomNumber;
-        this.tenantId = tenantId;
-    }
 }
