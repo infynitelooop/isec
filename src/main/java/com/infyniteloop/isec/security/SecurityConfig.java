@@ -7,9 +7,15 @@ import com.infyniteloop.isec.security.models.Role;
 import com.infyniteloop.isec.security.models.User;
 import com.infyniteloop.isec.security.repository.RoleRepository;
 import com.infyniteloop.isec.security.repository.UserRepository;
+import com.infyniteloop.runningroom.model.Bed;
+import com.infyniteloop.runningroom.model.Building;
 import com.infyniteloop.runningroom.model.Room;
+import com.infyniteloop.runningroom.model.RunningRoom;
 import com.infyniteloop.runningroom.model.Tenant;
+import com.infyniteloop.runningroom.repository.BedRepository;
+import com.infyniteloop.runningroom.repository.BuildingRepository;
 import com.infyniteloop.runningroom.repository.RoomRepository;
+import com.infyniteloop.runningroom.repository.RunningRoomRepository;
 import com.infyniteloop.runningroom.repository.TenantRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
@@ -75,6 +81,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/rooms/**").hasRole("ADMIN")
                 .requestMatchers("/api/notes/**").hasAnyRole("USER","ADMIN")
+                .requestMatchers("/api/enums/**").hasAnyRole("USER","ADMIN")
 //                .requestMatchers("/api/audit/**").hasRole("ADMIN")
                 .requestMatchers("/api/user/**").hasRole("USER")
                 .requestMatchers("/api/auth/user/**").hasAnyRole("USER","ADMIN")
@@ -138,7 +145,7 @@ public class SecurityConfig {
     @Bean
     public CommandLineRunner initData(RoleRepository roleRepository,
                                       UserRepository userRepository, PasswordEncoder passwordEncoder, TenantRepository tenantRepository,
-                                      RoomRepository roomRepository) {
+                                      RoomRepository roomRepository, BedRepository bedRepository, BuildingRepository buildingRepository, RunningRoomRepository runningRoomRepository) {
         return args -> {
             Role userRole = roleRepository.findByRoleName(AppRole.ROLE_USER)
                     .orElseGet(() -> roleRepository.save(new Role(AppRole.ROLE_USER)));
@@ -156,14 +163,86 @@ public class SecurityConfig {
             Tenant tenantLko = tenantRepository.findByTenantName("LKO")
                     .orElseGet(() -> tenantRepository.save(new Tenant("LKO")));
 
-            roomRepository.findByRoomNumber("N101")
-                    .orElseGet(() -> roomRepository.save(build("N101", tenantNdls.getId())));
-            roomRepository.findByRoomNumber("N102")
-                    .orElseGet(() -> roomRepository.save(build("N102", tenantNdls.getId())));
-            roomRepository.findByRoomNumber("L103")
-                    .orElseGet(() -> roomRepository.save(build("L103", tenantLko.getId())));
-            roomRepository.findByRoomNumber("L104")
-                    .orElseGet(() -> roomRepository.save(build("L104", tenantLko.getId())));
+
+
+            RunningRoom runningRoomN = new RunningRoom();
+            runningRoomN.setName("Running Room A");
+            runningRoomN.setTenantId(tenantNdls.getId());
+
+            RunningRoom runningRoomL = new RunningRoom();
+            runningRoomL.setName("Running Room B");
+            runningRoomL.setTenantId(tenantLko.getId());
+
+            RunningRoom saverunningRoomN = runningRoomRepository.findByName("Running Room A")
+                    .orElseGet(() -> runningRoomRepository.save(runningRoomN));
+            RunningRoom saverunningRoomL = runningRoomRepository.findByName("Running Room B")
+                    .orElseGet(() -> runningRoomRepository.save(runningRoomL));
+
+
+            Building buildingA = new Building();
+            buildingA.setBuildingName("Building NDLS A");
+            buildingA.setAddress("123 Main St, City A");
+            buildingA.setTenantId(tenantNdls.getId());
+            buildingA.setRunningRoom(saverunningRoomN);
+
+            Building buildingB = new Building();
+            buildingB.setBuildingName("Building LKO B");
+            buildingB.setAddress("456 Elm St, City B");
+            buildingB.setTenantId(tenantLko.getId());
+            buildingB.setRunningRoom(saverunningRoomL);
+
+
+
+
+            Building saveBuildingA = buildingRepository.findByBuildingName("Building NDLS A")
+                    .orElseGet(() -> buildingRepository.save(buildingA));
+            Building saveBuildingB = buildingRepository.findByBuildingName("Building LKO B")
+                    .orElseGet(() -> buildingRepository.save(buildingB));
+
+
+            Room n101 = roomRepository.findByRoomNumber("N101")
+                    .orElseGet(() -> roomRepository.save(build("N101", tenantNdls.getId(), saveBuildingA)));
+            Room n102 = roomRepository.findByRoomNumber("N102")
+                    .orElseGet(() -> roomRepository.save(build("N102", tenantNdls.getId(), saveBuildingA)));
+            Room l103 = roomRepository.findByRoomNumber("L103")
+                    .orElseGet(() -> roomRepository.save(build("L103", tenantLko.getId(), saveBuildingB)));
+            Room l104 = roomRepository.findByRoomNumber("L104")
+                    .orElseGet(() -> roomRepository.save(build("L104", tenantLko.getId(), saveBuildingB)));
+
+
+            Bed bed1 = bedRepository.findByBedNumber("1")
+                    .orElseGet(() -> {
+                        Bed b = new Bed();
+                        b.setBedNumber("1");
+                        b.setRoom(n101);
+                        b.setTenantId(tenantNdls.getId());
+                        return bedRepository.save(b);
+                    });
+            Bed bed2 = bedRepository.findByBedNumber("2")
+                    .orElseGet(() -> {
+                        Bed b = new Bed();
+                        b.setBedNumber("2");
+                        b.setRoom(n101);
+                        b.setTenantId(tenantNdls.getId());
+                        return bedRepository.save(b);
+                    });
+            Bed bed3 = bedRepository.findByBedNumber("3")
+                    .orElseGet(() -> {
+                        Bed b = new Bed();
+                        b.setBedNumber("3");
+                        b.setRoom(l103);
+                        b.setTenantId(tenantLko.getId());
+                        return bedRepository.save(b);
+                    });
+            Bed bed4 = bedRepository.findByBedNumber("4")
+                    .orElseGet(() -> {
+                        Bed b = new Bed();
+                        b.setBedNumber("4");
+                        b.setRoom(l103);
+                        b.setTenantId(tenantLko.getId());
+                        return bedRepository.save(b);
+                    });
+
 
 
             if (!userRepository.existsByUserName("user1")) {
@@ -233,10 +312,11 @@ public class SecurityConfig {
     }
 
 
-    private Room build(String roomNumber, UUID tenantId) {
+    private Room build(String roomNumber, UUID tenantId, Building building) {
         Room room = new Room();
         room.setRoomNumber(roomNumber);
         room.setTenantId(tenantId);
+        room.setBuilding(building);
         return room;
     }
 

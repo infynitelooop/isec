@@ -17,8 +17,6 @@ public interface RoomMapper {
         existingRoom.setStatus(roomRequest.status());
         existingRoom.setType(roomRequest.roomType());
         existingRoom.setAc(roomRequest.ac());
-        existingRoom.setBeds(roomRequest.beds());
-        existingRoom.setBuildingName(roomRequest.buildingName());
         existingRoom.setCrewType(roomRequest.crewType());
         existingRoom.setDescription(roomRequest.description());
         existingRoom.setFloor(roomRequest.floor());
@@ -35,6 +33,8 @@ public interface RoomMapper {
 
     // entity -> response
 
+    @Mapping(target = "beds", expression = "java(room.getBeds() != null ? room.getBeds().size() : 0)")
+    @Mapping(target = "buildingName", source = "building.buildingName")
     @Mapping(source = "type", target = "roomType")
     RoomResponse toResponse(Room room);
 }
