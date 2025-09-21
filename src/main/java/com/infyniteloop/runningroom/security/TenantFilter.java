@@ -1,11 +1,13 @@
 package com.infyniteloop.runningroom.security;
 
+import com.infyniteloop.runningroom.exception.NotFoundException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.hibernate.Session;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -63,4 +65,7 @@ public class TenantFilter extends OncePerRequestFilter {
             throw new IllegalArgumentException("No tenant context found", e);
         }
     }
+
+
+
 }

@@ -1,9 +1,9 @@
-package com.infyniteloop.runningroom.model.types;
+package com.infyniteloop.runningroom.model.enums;
 
 /**
  * Enum representing the status of a room.
  */
-public enum RoomStatus {
+public enum OccupancyStatus {
     AVAILABLE,
     OCCUPIED,
     MAINTENANCE,
