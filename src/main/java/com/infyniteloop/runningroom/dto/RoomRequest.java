@@ -1,17 +1,21 @@
 package com.infyniteloop.runningroom.dto;
 
-import com.infyniteloop.runningroom.model.types.AttachmentType;
-import com.infyniteloop.runningroom.model.types.CrewType;
-import com.infyniteloop.runningroom.model.types.RoomCategory;
-import com.infyniteloop.runningroom.model.types.RoomStatus;
-import com.infyniteloop.runningroom.model.types.RoomType;
+import com.infyniteloop.runningroom.model.enums.AttachmentType;
+import com.infyniteloop.runningroom.model.enums.CrewType;
+import com.infyniteloop.runningroom.model.enums.RoomCategory;
+import com.infyniteloop.runningroom.model.enums.RoomStatus;
+import com.infyniteloop.runningroom.model.enums.RoomType;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
+import java.util.UUID;
+
 public record RoomRequest(
+
+        UUID id,
 
         @NotBlank(message = "roomNumber cannot be blank")
         String roomNumber,
@@ -28,9 +32,6 @@ public record RoomRequest(
         @Min(value = 0, message = "Floor cannot be negative")
         @Max(value = 10, message = "Floor cannot be greater than 10")
         int floor,
-
-        @Min(value = 0, message = "Beds cannot be negative")
-        int beds,
 
         @NotBlank(message = "Building name is required")
         String buildingName,

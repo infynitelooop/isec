@@ -1,4 +1,4 @@
-package com.infyniteloop.runningroom.model.types;
+package com.infyniteloop.runningroom.model.enums;
 
 public enum AttachmentType {
     I,  // Indian

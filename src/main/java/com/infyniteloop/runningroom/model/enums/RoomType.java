@@ -1,4 +1,4 @@
-package com.infyniteloop.runningroom.model.types;
+package com.infyniteloop.runningroom.model.enums;
 
 /**
  * Enum representing the type of a room.

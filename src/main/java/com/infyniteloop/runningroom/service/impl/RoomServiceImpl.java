@@ -9,6 +9,7 @@ import com.infyniteloop.runningroom.model.mapper.RoomMapper;
 import com.infyniteloop.runningroom.repository.RoomRepository;
 import com.infyniteloop.runningroom.security.TenantFilter;
 import com.infyniteloop.runningroom.service.RoomService;
+import com.infyniteloop.runningroom.util.TenantContext;
 import jakarta.persistence.EntityManager;
 import org.hibernate.Session;
 import org.slf4j.Logger;
@@ -35,6 +36,38 @@ public class RoomServiceImpl implements RoomService {
         this.roomMapper = roomMapper;
     }
 
+    // TODO: try to move it to a common place
+
+//    3. Enable Hibernate tenant filter separately
+//
+//    This belongs in a JPA config / listener, not the request filter.
+//
+//    For example, you can use a @Component that listens to transactions and applies the filter:
+//
+//            package com.infyniteloop.runningroom.tenant;
+//
+//import jakarta.persistence.EntityManager;
+//import jakarta.persistence.PersistenceContext;
+//import org.hibernate.Session;
+//import org.springframework.stereotype.Component;
+//
+//import jakarta.transaction.Transactional;
+//
+//    @Component
+//    public class TenantFilterEnabler {
+//
+//        @PersistenceContext
+//        private EntityManager entityManager;
+//
+//        @Transactional
+//        public void enableTenantFilter() {
+//            UUID tenantId = TenantContext.getCurrentTenant();
+//            Session session = entityManager.unwrap(Session.class);
+//            session.enableFilter("tenantFilter").setParameter("tenantId", tenantId);
+//        }
+//    }
+//
+//
     // Enable tenant filter for current session
     private void enableTenantFilter() {
         UUID tenantId = TenantFilter.CURRENT_TENANT.get();
@@ -46,10 +79,9 @@ public class RoomServiceImpl implements RoomService {
     public RoomResponse createRoom(RoomRequest roomRequest) {
 
         // Get tenantId from ThreadLocal
-        UUID tenantId = TenantFilter.CURRENT_TENANT.get();
-        if (tenantId == null) {
-            throw new NotFoundException("No tenant context found");
-        }
+        UUID tenantId = TenantContext.getCurrentTenant();
+
+        enableTenantFilter();
 
         //check before saving to provide a friendly error instead of waiting for the DB exception
         if (roomRepository.existsByRoomNumberAndTenantId(roomRequest.roomNumber(), tenantId)) {
@@ -74,7 +106,7 @@ public class RoomServiceImpl implements RoomService {
 
         enableTenantFilter();
         // Fetch existing room
-        Room existingRoom = roomRepository.findByRoomNumber(roomRequest.roomNumber())
+        Room existingRoom = roomRepository.findById(roomRequest.id())
                 .orElseThrow(() -> new NotFoundException(ROOM_NOT_FOUND));
 
         // Map fields from DTO to entity
@@ -104,7 +136,7 @@ public class RoomServiceImpl implements RoomService {
     @Override
     public List<RoomResponse> getAllRooms() {
         enableTenantFilter();
-        List<Room> roomList = roomRepository.findAll();
+        List<Room> roomList = roomRepository.findAllWithBuilding();
         List<RoomResponse> list = roomList.stream()
                 .map(roomMapper::toResponse)
                 .toList();

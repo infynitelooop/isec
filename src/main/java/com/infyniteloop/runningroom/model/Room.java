@@ -1,16 +1,21 @@
 package com.infyniteloop.runningroom.model;
 
-import com.infyniteloop.runningroom.model.types.AttachmentType;
-import com.infyniteloop.runningroom.model.types.CrewType;
-import com.infyniteloop.runningroom.model.types.RoomCategory;
-import com.infyniteloop.runningroom.model.types.RoomStatus;
-import com.infyniteloop.runningroom.model.types.RoomType;
+import com.infyniteloop.runningroom.model.enums.AttachmentType;
+import com.infyniteloop.runningroom.model.enums.CrewType;
+import com.infyniteloop.runningroom.model.enums.RoomCategory;
+import com.infyniteloop.runningroom.model.enums.RoomStatus;
+import com.infyniteloop.runningroom.model.enums.RoomType;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.Getter;
@@ -21,7 +26,7 @@ import org.hibernate.annotations.Filter;
 import org.hibernate.annotations.FilterDef;
 import org.hibernate.annotations.ParamDef;
 
-import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 
@@ -38,7 +43,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @FilterDef(name = "tenantFilter", parameters = @ParamDef(name = "tenantId", type = UUID.class)) // Define the filter
 @Filter(name = "tenantFilter", condition = "tenant_id = :tenantId") // Apply the filter condition
-public class Room {
+public class Room extends BaseEntity{
 
     @Id
     @GeneratedValue
@@ -57,9 +62,12 @@ public class Room {
 
     private int floor = 0;
 
-    private int beds = 0;
+    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Bed> beds;
 
-    private String buildingName = "A";
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "building_id", nullable = false)
+    private Building building;
 
     @Enumerated(EnumType.STRING)
     private RoomStatus status = RoomStatus.AVAILABLE;
@@ -75,11 +83,4 @@ public class Room {
 
     @Enumerated(EnumType.STRING)
     private AttachmentType attachment = AttachmentType.I; // Toilet type INDIAN/ WESTERN/ COMMON
-
-    @NonNull
-    @Column(nullable = false)
-    private UUID tenantId;
-
-    private LocalDateTime createdAt = LocalDateTime.now();
-
 }

@@ -9,6 +9,7 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+//TODO: Need to remove it
 @Entity
 @Table(name = "room_allocations")
 @Getter
