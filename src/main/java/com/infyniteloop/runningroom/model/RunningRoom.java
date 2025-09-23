@@ -11,7 +11,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @Table(name = "running_room")
-public class RunningRoom extends BaseEntity {
+public class RunningRoom {
     @Id @GeneratedValue
     private UUID id;
     private String name;
@@ -20,6 +20,6 @@ public class RunningRoom extends BaseEntity {
     private String division;
     private String zone;
 
-    @OneToMany(mappedBy = "runningRoom", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "id", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Building> buildings;
 }

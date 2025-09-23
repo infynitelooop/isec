@@ -41,7 +41,6 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
-@FilterDef(name = "tenantFilter", parameters = @ParamDef(name = "tenantId", type = UUID.class)) // Define the filter
 @Filter(name = "tenantFilter", condition = "tenant_id = :tenantId") // Apply the filter condition
 public class Room extends BaseEntity{
 

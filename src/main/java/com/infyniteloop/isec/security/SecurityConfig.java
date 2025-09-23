@@ -157,39 +157,33 @@ public class SecurityConfig {
                     .orElseGet(() -> roleRepository.save(new Role(AppRole.ROLE_CREW)));
 
 
-            Tenant tenantNdls = tenantRepository.findByTenantName("NDLS")
-                    .orElseGet(() -> tenantRepository.save(new Tenant("NDLS")));
-
-            Tenant tenantLko = tenantRepository.findByTenantName("LKO")
-                    .orElseGet(() -> tenantRepository.save(new Tenant("LKO")));
 
 
+            RunningRoom tenantNdls = new RunningRoom();
+            tenantNdls.setName("NDLS");
+            tenantNdls.setDivision("DELHI");
+            tenantNdls.setZone("NORTH");
 
-            RunningRoom runningRoomN = new RunningRoom();
-            runningRoomN.setName("Running Room A");
-            runningRoomN.setTenantId(tenantNdls.getId());
+            RunningRoom tenantLko = new RunningRoom();
+            tenantLko.setName("LKO");
+            tenantLko.setDivision("UP");
+            tenantLko.setZone("CENTRAL");
 
-            RunningRoom runningRoomL = new RunningRoom();
-            runningRoomL.setName("Running Room B");
-            runningRoomL.setTenantId(tenantLko.getId());
-
-            RunningRoom saverunningRoomN = runningRoomRepository.findByName("Running Room A")
-                    .orElseGet(() -> runningRoomRepository.save(runningRoomN));
-            RunningRoom saverunningRoomL = runningRoomRepository.findByName("Running Room B")
-                    .orElseGet(() -> runningRoomRepository.save(runningRoomL));
+            RunningRoom saverunningRoomN = runningRoomRepository.findByName("NDLS")
+                    .orElseGet(() -> runningRoomRepository.save(tenantNdls));
+            RunningRoom saverunningRoomL = runningRoomRepository.findByName("LKO")
+                    .orElseGet(() -> runningRoomRepository.save(tenantLko));
 
 
             Building buildingA = new Building();
             buildingA.setBuildingName("Building NDLS A");
             buildingA.setAddress("123 Main St, City A");
             buildingA.setTenantId(tenantNdls.getId());
-            buildingA.setRunningRoom(saverunningRoomN);
 
             Building buildingB = new Building();
             buildingB.setBuildingName("Building LKO B");
             buildingB.setAddress("456 Elm St, City B");
             buildingB.setTenantId(tenantLko.getId());
-            buildingB.setRunningRoom(saverunningRoomL);
 
 
 
