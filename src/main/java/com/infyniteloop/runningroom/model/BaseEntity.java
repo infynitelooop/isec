@@ -1,10 +1,17 @@
 package com.infyniteloop.runningroom.model;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.FilterDef;
+import org.hibernate.annotations.ParamDef;
+
 import java.time.Instant;
 import java.util.UUID;
 
 @MappedSuperclass
+@FilterDef(
+        name = "tenantFilter",
+        parameters = @ParamDef(name = "tenantId", type = UUID.class)
+)
 public abstract class BaseEntity {
     @Column(name = "tenant_id", nullable = false, updatable = false)
     protected UUID tenantId;

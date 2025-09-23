@@ -1,13 +1,12 @@
 package com.infyniteloop.runningroom.security;
 
-import com.infyniteloop.runningroom.exception.NotFoundException;
+import com.infyniteloop.runningroom.util.TenantContext;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.hibernate.Session;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -17,8 +16,6 @@ import java.util.UUID;
 
 @Component
 public class TenantFilter extends OncePerRequestFilter {
-
-    public static final ThreadLocal<UUID> CURRENT_TENANT = new ThreadLocal<>();
 
     private final PublicKey publicKey;
 
@@ -38,15 +35,15 @@ public class TenantFilter extends OncePerRequestFilter {
                 String token = authHeader.substring(7);
                 UUID tenantId = extractTenantIdFromJWT(token);
 
-                // store in ThreadLocal
-                CURRENT_TENANT.set(tenantId);
+                // Set in TenantContext
+                TenantContext.setCurrentTenant(tenantId);
             }
 
             filterChain.doFilter(request, response);
 
         } finally {
             // Always clear to avoid leaking to the next request
-            CURRENT_TENANT.remove();
+            TenantContext.clear(); // clear the ThreadLocal
         }
     }
 

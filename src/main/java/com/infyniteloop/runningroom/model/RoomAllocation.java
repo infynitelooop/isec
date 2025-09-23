@@ -10,11 +10,11 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 //TODO: Need to remove it
-@Entity
-@Table(name = "room_allocations")
-@Getter
-@Setter
-@NoArgsConstructor
+//@Entity
+//@Table(name = "room_allocations")
+//@Getter
+//@Setter
+//@NoArgsConstructor
 public class RoomAllocation {
 
     @Id
