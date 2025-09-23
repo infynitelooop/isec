@@ -28,13 +28,14 @@ public interface RoomMapper {
     // request -> entity
     @Mapping(target = "id", ignore = true)
     @Mapping(source = "roomType", target = "type")
+    @Mapping(source = "buildingId", target = "building.id")
     // TODO: Do we really ned tenantid here?
     Room toEntity(RoomRequest request, @Context UUID tenantId);
 
     // entity -> response
 
     @Mapping(target = "beds", expression = "java(room.getBeds() != null ? room.getBeds().size() : 0)")
-    @Mapping(target = "buildingName", source = "building.buildingName")
+    @Mapping(target = "buildingId", source = "building.id")
     @Mapping(source = "type", target = "roomType")
     RoomResponse toResponse(Room room);
 }

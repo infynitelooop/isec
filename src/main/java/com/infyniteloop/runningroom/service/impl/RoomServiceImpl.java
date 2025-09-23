@@ -4,8 +4,10 @@ import com.infyniteloop.runningroom.dto.RoomRequest;
 import com.infyniteloop.runningroom.dto.RoomResponse;
 import com.infyniteloop.runningroom.exception.DuplicateResourceException;
 import com.infyniteloop.runningroom.exception.NotFoundException;
+import com.infyniteloop.runningroom.model.Building;
 import com.infyniteloop.runningroom.model.Room;
 import com.infyniteloop.runningroom.model.mapper.RoomMapper;
+import com.infyniteloop.runningroom.repository.BuildingRepository;
 import com.infyniteloop.runningroom.repository.RoomRepository;
 import com.infyniteloop.runningroom.service.RoomService;
 import com.infyniteloop.runningroom.util.TenantContext;
@@ -26,12 +28,14 @@ public class RoomServiceImpl implements RoomService {
 
     public static final String ROOM_NOT_FOUND = "Room not found";
     private final RoomRepository roomRepository;
+    private final BuildingRepository buildingRepository;
     private final RoomMapper roomMapper;
     private final EntityManager entityManager;
 
-    public RoomServiceImpl(RoomRepository roomRepository, RoomMapper roomMapper, EntityManager entityManager) {
+    public RoomServiceImpl(RoomRepository roomRepository, BuildingRepository buildingRepository, RoomMapper roomMapper, EntityManager entityManager) {
         this.entityManager = entityManager;
         this.roomRepository = roomRepository;
+        this.buildingRepository = buildingRepository;
         this.roomMapper = roomMapper;
     }
 
@@ -108,8 +112,13 @@ public class RoomServiceImpl implements RoomService {
         Room existingRoom = roomRepository.findById(roomRequest.id())
                 .orElseThrow(() -> new NotFoundException(ROOM_NOT_FOUND));
 
+        // Fetch the Building details
+        Building building = buildingRepository.findById(UUID.fromString(roomRequest.buildingId()))
+                .orElseThrow(() -> new NotFoundException("Building not found"));
+
         // Map fields from DTO to entity
         RoomMapper.updateRoomFromDto(roomRequest, existingRoom);
+        existingRoom.setBuilding(building);
 
         Room saved = roomRepository.save(existingRoom);
         return roomMapper.toResponse(saved);
