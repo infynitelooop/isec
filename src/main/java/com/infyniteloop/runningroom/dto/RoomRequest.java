@@ -33,8 +33,8 @@ public record RoomRequest(
         @Max(value = 10, message = "Floor cannot be greater than 10")
         int floor,
 
-        @NotBlank(message = "Building name is required")
-        String buildingName,
+        @NotBlank(message = "Building Id is required")
+        String buildingId,
 
         @NotNull(message = "status cannot be null")
         RoomStatus status,

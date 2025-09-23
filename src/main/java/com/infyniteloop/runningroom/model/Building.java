@@ -13,7 +13,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @Table(name = "building", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"buildingName", "tenantId"})
+        @UniqueConstraint(columnNames = {"buildingId", "tenantId"})
 })// Define the filter
 @NoArgsConstructor
 @Filter(name = "tenantFilter", condition = "tenant_id = :tenantId") // Apply the filter condition
