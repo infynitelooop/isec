@@ -13,6 +13,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
+import java.util.Map;
+
 
 /**
  * Controller to fetch enum values for various types.
@@ -51,5 +54,22 @@ public class EnumController {
             case "roomtype" -> enumMapper.mapEnum(RoomType.values());
             default -> throw new NotFoundException("Unknown enum type: " + type);
         };
+    }
+
+
+    /**
+     * Endpoint to get all enum values for supported types.
+     *
+     * @return A map where the key is the enum type and the value is an array of EnumResponse containing key-label pairs.
+     */
+    @GetMapping("/all")
+    public Map<String, EnumMapper.EnumResponse[]> getAllEnums() {
+        Map<String, EnumMapper.EnumResponse[]> result = new HashMap<>();
+        result.put("roomTypes", enumMapper.mapEnum(RoomType.values()));
+        result.put("crewTypes", enumMapper.mapEnum(CrewType.values()));
+        result.put("roomStatus", enumMapper.mapEnum(RoomStatus.values()));
+        result.put("roomCategory", enumMapper.mapEnum(RoomCategory.values()));
+        result.put("attachmentType", enumMapper.mapEnum(AttachmentType.values()));
+        return result;
     }
 }

@@ -27,7 +27,7 @@ public class BedServiceImpl {
 
     // Enable tenant filter for current session
     private void enableTenantFilter() {
-        UUID tenantId = TenantFilter.CURRENT_TENANT.get();
+        UUID tenantId = TenantContext.CURRENT_TENANT.get();
         Session session = entityManager.unwrap(Session.class);
         session.enableFilter("tenantFilter").setParameter("tenantId", tenantId);
     }
@@ -56,6 +56,7 @@ public class BedServiceImpl {
     }
 
     public List<Bed> listAll() {
+        enableTenantFilter();
         return bedRepository.findAll();
     }
 

@@ -2,10 +2,11 @@ package com.infyniteloop.runningroom.util;
 
 import com.infyniteloop.runningroom.exception.NotFoundException;
 
+import java.util.Optional;
 import java.util.UUID;
 
 public class TenantContext {
-    private static final ThreadLocal<UUID> CURRENT_TENANT = new ThreadLocal<>();
+    public static final ThreadLocal<UUID> CURRENT_TENANT = new ThreadLocal<>();
 
     public static void setCurrentTenant(UUID tenantId) {
         CURRENT_TENANT.set(tenantId);
@@ -16,7 +17,7 @@ public class TenantContext {
         if (tenantId == null) {
             throw new NotFoundException("TenantId not found in request context");
         }
-        return tenantId;
+        return Optional.ofNullable(tenantId).orElseThrow(() -> new NotFoundException("TenantId not found in request context"));
     }
 
     public static void clear() {

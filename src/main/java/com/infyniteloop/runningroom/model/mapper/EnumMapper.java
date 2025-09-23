@@ -16,6 +16,6 @@ public class EnumMapper {
     }
 
     private String prettify(String name) {
-        return name.replace("_", " ").toLowerCase(); // or Title Case
+        return name.replace("_", " ").toUpperCase(); // or Title Case
     }
 }

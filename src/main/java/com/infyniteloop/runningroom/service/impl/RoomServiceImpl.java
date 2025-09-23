@@ -7,7 +7,6 @@ import com.infyniteloop.runningroom.exception.NotFoundException;
 import com.infyniteloop.runningroom.model.Room;
 import com.infyniteloop.runningroom.model.mapper.RoomMapper;
 import com.infyniteloop.runningroom.repository.RoomRepository;
-import com.infyniteloop.runningroom.security.TenantFilter;
 import com.infyniteloop.runningroom.service.RoomService;
 import com.infyniteloop.runningroom.util.TenantContext;
 import jakarta.persistence.EntityManager;
@@ -70,7 +69,7 @@ public class RoomServiceImpl implements RoomService {
 //
     // Enable tenant filter for current session
     private void enableTenantFilter() {
-        UUID tenantId = TenantFilter.CURRENT_TENANT.get();
+        UUID tenantId = TenantContext.CURRENT_TENANT.get();
         Session session = entityManager.unwrap(Session.class);
         session.enableFilter("tenantFilter").setParameter("tenantId", tenantId);
     }
@@ -99,7 +98,7 @@ public class RoomServiceImpl implements RoomService {
     @Override
     public RoomResponse updateRoom(RoomRequest roomRequest) {
 
-        UUID tenantId = TenantFilter.CURRENT_TENANT.get();
+        UUID tenantId = TenantContext.CURRENT_TENANT.get();
         if (tenantId == null) {
             throw new NotFoundException("TenantId not found in request context");
         }
