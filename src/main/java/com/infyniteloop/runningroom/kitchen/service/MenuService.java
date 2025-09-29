@@ -73,22 +73,54 @@ public class MenuService {
      */
     public List<Menu> getMenusByDateRange(LocalDate startDate, LocalDate endDate) {
         List<Menu> menus = menuRepository.findByMenuDateBetweenOrderByMenuDateAsc(startDate, endDate);
-        List<MealType> mealOrder = List.of(MealType.BREAKFAST, MealType.LUNCH, MealType.SNACKS, MealType.DINNER);
+        List<MealType> mealOrder = MealType.orderedList();
 
         for (Menu menu : menus) {
-            menu.getItems().sort(Comparator.comparingInt(item -> mealOrder.indexOf(item.getMealType())));
+            getMenuItems(mealOrder, menu);
         }
         return menus;
     }
 
+    /**
+     * Retrieves a menu for the specified date, reordering its items based on meal type.
+     * If no menu exists for the date, a NotFoundException is thrown.
+     *
+     * @param date The date for which to retrieve the menu.
+     * @return The menu for the specified date with items ordered by meal type.
+     * @throws NotFoundException if no menu exists for the specified date.
+     */
     public Menu getMenuByDate(LocalDate date) {
-        Optional<Menu> menu = menuRepository.findByMenuDate(date);
-        List<MealType> mealOrder = List.of(MealType.BREAKFAST, MealType.LUNCH, MealType.SNACKS, MealType.DINNER);
+        Optional<Menu> menuOpt = menuRepository.findByMenuDate(date);
+        List<MealType> mealOrder = MealType.orderedList();
 
+        Menu menu = menuOpt.orElseThrow(() -> new NotFoundException("Menu not found for date: " + date));
+        getMenuItems(mealOrder, menu);
 
-        menu.ifPresent(m -> m.getItems().sort(Comparator.comparingInt(item -> mealOrder.indexOf(item.getMealType()))));
+        return menu;
+    }
 
-        return menu.orElseThrow(() -> new NotFoundException("Menu not found for date: " + date));
+    /* Reorders menu items based on the specified meal order.
+     * If a meal type is missing, a placeholder item with "N/A" is added.
+     * @param mealOrder The desired order of meal types.
+     * @param menu The menu whose items are to be reordered.
+     */
+    private void getMenuItems(List<MealType> mealOrder, Menu menu) {
+        List<MenuItem> items = new ArrayList<>(menu.getItems());
+        List<MenuItem> orderedItems = new ArrayList<>();
+        for (MealType mealType : mealOrder) {
+            MenuItem item = items.stream()
+                    .filter(i -> i.getMealType() == mealType)
+                    .findFirst()
+                    .orElseGet(() -> {
+                        MenuItem placeholder = new MenuItem();
+                        placeholder.setMealType(mealType);
+                        placeholder.setName("N/A");
+                        placeholder.setMenu(menu);
+                        return placeholder;
+                    });
+            orderedItems.add(item);
+        }
+        menu.setItems(orderedItems);
     }
 
 
