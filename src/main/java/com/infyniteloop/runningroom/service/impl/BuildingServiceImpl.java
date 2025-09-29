@@ -2,15 +2,14 @@ package com.infyniteloop.runningroom.service.impl;
 
 import com.infyniteloop.runningroom.dto.BuildingRequest;
 import com.infyniteloop.runningroom.dto.BuildingResponse;
-import com.infyniteloop.runningroom.exception.BadRequestException;
 import com.infyniteloop.runningroom.exception.DuplicateResourceException;
 import com.infyniteloop.runningroom.exception.NotFoundException;
 import com.infyniteloop.runningroom.model.Building;
 import com.infyniteloop.runningroom.repository.BuildingRepository;
 import com.infyniteloop.runningroom.repository.RunningRoomRepository;
+import com.infyniteloop.runningroom.service.BuildingService;
 import com.infyniteloop.runningroom.util.TenantContext;
 import jakarta.persistence.EntityManager;
-import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -20,7 +19,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
-public class BuildingServiceImpl {
+public class BuildingServiceImpl implements BuildingService {
 
     private static final Logger log = LoggerFactory.getLogger(BuildingServiceImpl.class);
     private final BuildingRepository buildingRepository;
@@ -34,34 +33,28 @@ public class BuildingServiceImpl {
         this.entityManager = entityManager;
     }
 
-    // Enable tenant filter for current session
-    private void enableTenantFilter() {
-        UUID tenantId = TenantContext.CURRENT_TENANT.get();
-        Session session = entityManager.unwrap(Session.class);
-        session.enableFilter("tenantFilter").setParameter("tenantId", tenantId);
-    }
 
-
+    @Override
     public List<BuildingResponse> getAllBuildings() {
-        enableTenantFilter();
         return buildingRepository.findAll()
                 .stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }
 
+    @Override
     public BuildingResponse getBuildingById(UUID id) {
         Building building = buildingRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Building not found"));
         return toResponse(building);
     }
 
+    @Override
     public BuildingResponse createBuilding(BuildingRequest request) {
 
         // Get tenantId from ThreadLocal
         UUID tenantId = TenantContext.getCurrentTenant();
 
-        enableTenantFilter();
         runningRoomRepository.findById(tenantId)
                 .orElseThrow(() -> new NotFoundException("RunningRoom not found"));
 
@@ -81,9 +74,9 @@ public class BuildingServiceImpl {
         return toResponse(buildingRepository.save(building));
     }
 
+    @Override
     public BuildingResponse updateBuilding(UUID id, BuildingRequest request) {
 
-        enableTenantFilter();
         Building building = buildingRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Building not found"));
 
@@ -95,6 +88,7 @@ public class BuildingServiceImpl {
         return toResponse(buildingRepository.save(building));
     }
 
+    @Override
     public void deleteBuilding(UUID id) {
         Building building = buildingRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Building not found"));
