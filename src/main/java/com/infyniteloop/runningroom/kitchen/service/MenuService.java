@@ -9,6 +9,7 @@ import com.infyniteloop.runningroom.kitchen.entity.WeeklyMenuTemplate;
 import com.infyniteloop.runningroom.kitchen.enums.MealType;
 import com.infyniteloop.runningroom.kitchen.repository.MenuRepository;
 import com.infyniteloop.runningroom.kitchen.repository.WeeklyMenuTemplateRepository;
+import com.infyniteloop.runningroom.util.TenantContext;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -185,6 +186,24 @@ public class MenuService {
      */
     @Transactional
     public List<Menu> copyWeeklyMenuFromHistoricWeek(LocalDate startOfSourceWeek, LocalDate startOfTargetWeek) {
+
+        UUID tenantId = TenantContext.getCurrentTenant();
+        if (tenantId == null) {
+            throw new IllegalStateException("TenantId not found in request context");
+        }
+
+        if (startOfSourceWeek.getDayOfWeek() != DayOfWeek.MONDAY ||
+                startOfTargetWeek.getDayOfWeek() != DayOfWeek.MONDAY) {
+            throw new IllegalArgumentException("Start dates must be Mondays");
+        }
+
+        // First delete any existing menus in the target week to avoid duplicates
+        LocalDate endOfTargetWeek = startOfTargetWeek.plusDays(6);
+        List<Menu> existingTargetMenus = menuRepository.findByMenuDateBetweenOrderByMenuDateAsc(startOfTargetWeek, endOfTargetWeek);
+        if (!existingTargetMenus.isEmpty()) {
+            menuRepository.deleteAll(existingTargetMenus);
+        }
+
         LocalDate endOfSourceWeek = startOfSourceWeek.plusDays(6);
 
         List<Menu> sourceMenus = menuRepository.findByMenuDateBetweenOrderByMenuDateAsc(startOfSourceWeek, endOfSourceWeek);
@@ -199,7 +218,7 @@ public class MenuService {
             LocalDate newDate = startOfTargetWeek.plusDays(offset);
 
             Menu newMenu = addToMenu(oldMenu, newDate);
-
+            newMenu.setTenantId(tenantId);
             newMenus.add(newMenu);
         }
 
