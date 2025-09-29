@@ -7,16 +7,20 @@ import com.infyniteloop.isec.security.models.Role;
 import com.infyniteloop.isec.security.models.User;
 import com.infyniteloop.isec.security.repository.RoleRepository;
 import com.infyniteloop.isec.security.repository.UserRepository;
+import com.infyniteloop.runningroom.kitchen.entity.Menu;
+import com.infyniteloop.runningroom.kitchen.entity.MenuItem;
+import com.infyniteloop.runningroom.kitchen.enums.MealCategory;
+import com.infyniteloop.runningroom.kitchen.enums.MealType;
+import com.infyniteloop.runningroom.kitchen.repository.MenuItemRepository;
+import com.infyniteloop.runningroom.kitchen.repository.MenuRepository;
 import com.infyniteloop.runningroom.model.Bed;
 import com.infyniteloop.runningroom.model.Building;
 import com.infyniteloop.runningroom.model.Room;
 import com.infyniteloop.runningroom.model.RunningRoom;
-import com.infyniteloop.runningroom.model.Tenant;
 import com.infyniteloop.runningroom.repository.BedRepository;
 import com.infyniteloop.runningroom.repository.BuildingRepository;
 import com.infyniteloop.runningroom.repository.RoomRepository;
 import com.infyniteloop.runningroom.repository.RunningRoomRepository;
-import com.infyniteloop.runningroom.repository.TenantRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
@@ -144,8 +148,9 @@ public class SecurityConfig {
 
     @Bean
     public CommandLineRunner initData(RoleRepository roleRepository,
-                                      UserRepository userRepository, PasswordEncoder passwordEncoder, TenantRepository tenantRepository,
-                                      RoomRepository roomRepository, BedRepository bedRepository, BuildingRepository buildingRepository, RunningRoomRepository runningRoomRepository) {
+                                      UserRepository userRepository, PasswordEncoder passwordEncoder, RoomRepository roomRepository,
+                                      BedRepository bedRepository, BuildingRepository buildingRepository, RunningRoomRepository runningRoomRepository,
+                                      MenuRepository menuRepository, MenuItemRepository menuItemRepository) {
         return args -> {
             Role userRole = roleRepository.findByRoleName(AppRole.ROLE_USER)
                     .orElseGet(() -> roleRepository.save(new Role(AppRole.ROLE_USER)));
@@ -302,6 +307,68 @@ public class SecurityConfig {
                 admin.setTenantId(null);
                 userRepository.save(admin);
             }
+
+            LocalDate today = LocalDate.now();
+            // Calculate the start of the current week (Monday)
+            LocalDate startOfCurrentWeek = today.minusDays(today.getDayOfWeek().getValue() - 1);
+            LocalDate startOfPreviousWeek = startOfCurrentWeek.minusWeeks(1);
+
+            for (int week = 0; week < 2; week++) {
+                LocalDate startDate = week == 0 ? startOfPreviousWeek : startOfCurrentWeek;
+                for (int i = 0; i < 7; i++) {
+                    LocalDate menuDate = startDate.plusDays(i);
+                    if (menuRepository.findByMenuDate(menuDate).isEmpty()) {
+                        Menu menu = new Menu();
+                        menu.setMenuDate(menuDate);
+                        menu.setTenantId(tenantNdls.getId());
+
+                        MenuItem item1 = new MenuItem();
+                        item1.setName("Aloo Puri");
+                        item1.setDescription("Aloo Puri with Chutney");
+                        item1.setPrice(50.0);
+                        item1.setMealType(MealType.BREAKFAST);
+                        item1.setMealCategory(MealCategory.VEG);
+                        item1.setMenu(menu);
+
+                        MenuItem item2 = new MenuItem();
+                        item2.setName("Butter Chicken");
+                        item2.setDescription("Shahi Paneer with Naan");
+                        item2.setPrice(100.0);
+                        item2.setMealType(MealType.DINNER);
+                        item2.setMealCategory(MealCategory.NON_VEG);
+                        item2.setMenu(menu);
+
+                        MenuItem item3 = new MenuItem();
+                        item3.setName("Jeera Rice");
+                        item3.setDescription("Jeera Rice with Dal");
+                        item3.setPrice(80.0);
+                        item3.setMealType(MealType.LUNCH);
+                        item3.setMealCategory(MealCategory.VEG);
+                        item3.setMenu(menu);
+
+                        MenuItem item4 = new MenuItem();
+                        item4.setName("Salad");
+                        item4.setDescription("Fresh Vegetable Salad");
+                        item4.setPrice(30.0);
+                        item4.setMealType(MealType.SNACKS);
+                        item4.setMealCategory(MealCategory.VEG);
+
+                        item4.setMenu(menu);
+
+                        MenuItem item5 = new MenuItem();
+                        item5.setName("Dosa");
+                        item5.setDescription("Masala Dosa");
+                        item5.setPrice(20.0);
+                        item5.setMealType(MealType.BREAKFAST);
+                        item5.setMealCategory(MealCategory.VEGAN);
+                        item5.setMenu(menu);
+                        menu.setItems(List.of(item1, item2, item3, item4, item5));
+
+                        menuRepository.save(menu);
+                    }
+                }
+            }
+
         };
     }
 

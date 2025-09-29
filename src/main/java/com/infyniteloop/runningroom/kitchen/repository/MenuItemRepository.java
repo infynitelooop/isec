@@ -1,6 +1,6 @@
-package com.infyniteloop.runningroom.repository;
+package com.infyniteloop.runningroom.kitchen.repository;
 
-import com.infyniteloop.runningroom.model.MenuItem;
+import com.infyniteloop.runningroom.kitchen.entity.MenuItem;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.UUID;
