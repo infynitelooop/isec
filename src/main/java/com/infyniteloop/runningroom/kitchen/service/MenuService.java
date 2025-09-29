@@ -257,6 +257,30 @@ public class MenuService {
         return menuRepository.saveAll(newMenus);
     }
 
+
+
+    @Transactional
+    public Menu copyDayMenuFromHistoricDay(LocalDate sourceDate, LocalDate targetDate) {
+
+        UUID tenantId = TenantContext.getCurrentTenant();
+        if (tenantId == null) {
+            throw new IllegalStateException("TenantId not found in request context");
+        }
+
+        // First delete any existing menus in the target week to avoid duplicates
+        menuRepository.findByMenuDate(targetDate).ifPresent(menuRepository::delete);
+
+        // Fetch the menu for the source date
+        Menu oldMenu = menuRepository.findByMenuDate(sourceDate)
+                .orElseThrow(() -> new IllegalStateException("No menu found for source date"));
+
+        // Create a new menu for the target date
+        Menu newMenu = addToMenu(oldMenu, targetDate);
+        newMenu.setTenantId(tenantId);
+
+        return menuRepository.save(newMenu);
+    }
+
     private Menu addToMenu(Menu oldMenu, LocalDate newDate) {
         Menu newMenu = new Menu();
         newMenu.setMenuDate(newDate);
@@ -273,16 +297,4 @@ public class MenuService {
         }
         return newMenu;
     }
-
-    @Transactional
-    public Menu copyDayMenuFromHistoricDay(LocalDate sourceDate, LocalDate targetDate) {
-        Menu oldMenu = menuRepository.findByMenuDate(sourceDate)
-                .orElseThrow(() -> new IllegalStateException("No menu found for " + sourceDate));
-
-        Menu newMenu = addToMenu(oldMenu, targetDate);
-
-        return menuRepository.save(newMenu);
-    }
-
-
 }
