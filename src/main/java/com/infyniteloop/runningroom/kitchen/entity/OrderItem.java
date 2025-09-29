@@ -1,4 +1,4 @@
-package com.infyniteloop.runningroom.model;
+package com.infyniteloop.runningroom.kitchen.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;

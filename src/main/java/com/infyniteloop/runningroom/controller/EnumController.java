@@ -3,6 +3,8 @@ package com.infyniteloop.runningroom.controller;
 import com.infyniteloop.runningroom.exception.NotFoundException;
 import com.infyniteloop.runningroom.model.enums.AttachmentType;
 import com.infyniteloop.runningroom.model.enums.CrewType;
+import com.infyniteloop.runningroom.kitchen.enums.MealCategory;
+import com.infyniteloop.runningroom.kitchen.enums.MealType;
 import com.infyniteloop.runningroom.model.enums.OccupancyStatus;
 import com.infyniteloop.runningroom.model.enums.RoomCategory;
 import com.infyniteloop.runningroom.model.enums.RoomStatus;
@@ -52,6 +54,10 @@ public class EnumController {
             case "roomcategory" -> enumMapper.mapEnum(RoomCategory.values());
             case "roomstatus" -> enumMapper.mapEnum(RoomStatus.values());
             case "roomtype" -> enumMapper.mapEnum(RoomType.values());
+
+            // Kitchen
+            case "mealType" -> enumMapper.mapEnum(MealType.values());
+            case "mealCategory" -> enumMapper.mapEnum(MealCategory.values());
             default -> throw new NotFoundException("Unknown enum type: " + type);
         };
     }
@@ -70,6 +76,10 @@ public class EnumController {
         result.put("roomStatus", enumMapper.mapEnum(RoomStatus.values()));
         result.put("roomCategory", enumMapper.mapEnum(RoomCategory.values()));
         result.put("attachmentType", enumMapper.mapEnum(AttachmentType.values()));
+
+        // Kitchen
+        result.put("mealType", enumMapper.mapEnum(MealType.values()));
+        result.put("mealCategory", enumMapper.mapEnum(MealCategory.values()));
         return result;
     }
 }
