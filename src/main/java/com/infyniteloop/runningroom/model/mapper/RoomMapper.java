@@ -2,11 +2,13 @@ package com.infyniteloop.runningroom.model.mapper;
 
 import com.infyniteloop.runningroom.dto.RoomRequest;
 import com.infyniteloop.runningroom.dto.RoomResponse;
+import com.infyniteloop.runningroom.model.Bed;
 import com.infyniteloop.runningroom.model.Room;
 import org.mapstruct.Context;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import java.util.List;
 import java.util.UUID;
 
 @Mapper(componentModel = "spring")
@@ -23,6 +25,27 @@ public interface RoomMapper {
         existingRoom.setRoomCategory(roomRequest.roomCategory());
         existingRoom.setRoomNumber(roomRequest.roomNumber());
         existingRoom.setAttachment(roomRequest.attachment());
+
+        // --- Bed count logic ---
+        int requestedBedCount = roomRequest.bedCount();
+        List<Bed> beds = existingRoom.getBeds();
+        int currentBedCount = beds.size();
+
+        if (requestedBedCount > currentBedCount) {
+            // Add new beds
+            for (int i = currentBedCount + 1; i <= requestedBedCount; i++) {
+                Bed bed = new Bed();
+                bed.setBedNumber(i);
+                bed.setRoom(existingRoom);
+                bed.setTenantId(existingRoom.getTenantId());
+                beds.add(bed);
+            }
+        } else if (requestedBedCount < currentBedCount) {
+            // Remove extra beds
+            beds.subList(requestedBedCount, currentBedCount).clear();
+        }
+        // --- End bed count logic ---
+
     }
 
     // request -> entity

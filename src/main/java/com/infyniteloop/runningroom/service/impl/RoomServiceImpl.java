@@ -108,9 +108,11 @@ public class RoomServiceImpl implements RoomService {
         Building building = buildingRepository.findById(UUID.fromString(roomRequest.buildingId()))
                 .orElseThrow(() -> new NotFoundException("Building not found"));
 
+        existingRoom.setBuilding(building);
+        existingRoom.setTenantId(tenantId); // ensure tenantId is set
+
         // Map fields from DTO to entity
         RoomMapper.updateRoomFromDto(roomRequest, existingRoom);
-        existingRoom.setBuilding(building);
 
         Room saved = roomRepository.save(existingRoom);
         return roomMapper.toResponse(saved);

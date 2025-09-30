@@ -16,7 +16,7 @@ public class Bed extends BaseEntity {
     @Id
     @GeneratedValue
     private UUID id;
-    private String bedNumber;
+    private int bedNumber;
     private OccupancyStatus occupancyStatus; // AVAILABLE, OCCUPIED, MAINTENANCE
 
     @ManyToOne(fetch = FetchType.LAZY)

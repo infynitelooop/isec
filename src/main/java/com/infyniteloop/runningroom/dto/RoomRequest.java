@@ -33,6 +33,10 @@ public record RoomRequest(
         @Max(value = 10, message = "Floor cannot be greater than 10")
         int floor,
 
+        @Min(value = 0, message = "Bed Count cannot be negative")
+        @Max(value = 10, message = "Bed Count cannot be greater than 10")
+        int bedCount,
+
         @NotBlank(message = "Building Id is required")
         String buildingId,
 
