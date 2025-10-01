@@ -1,8 +1,7 @@
-package com.infyniteloop.runningroom.service;
+package com.infyniteloop.runningroom.room.service;
 
-import com.infyniteloop.runningroom.dto.RoomRequest;
-import com.infyniteloop.runningroom.dto.RoomResponse;
-import com.infyniteloop.runningroom.model.Room;
+import com.infyniteloop.runningroom.room.dto.RoomRequest;
+import com.infyniteloop.runningroom.room.dto.RoomResponse;
 
 public interface RoomService {
 

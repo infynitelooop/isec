@@ -1,8 +1,8 @@
-package com.infyniteloop.runningroom.controller;
+package com.infyniteloop.runningroom.room.controller;
 
-import com.infyniteloop.runningroom.dto.RoomRequest;
-import com.infyniteloop.runningroom.dto.RoomResponse;
-import com.infyniteloop.runningroom.service.RoomService;
+import com.infyniteloop.runningroom.room.dto.RoomRequest;
+import com.infyniteloop.runningroom.room.dto.RoomResponse;
+import com.infyniteloop.runningroom.room.service.RoomService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;

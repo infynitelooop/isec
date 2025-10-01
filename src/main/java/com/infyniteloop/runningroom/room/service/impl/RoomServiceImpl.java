@@ -1,15 +1,15 @@
-package com.infyniteloop.runningroom.service.impl;
+package com.infyniteloop.runningroom.room.service.impl;
 
-import com.infyniteloop.runningroom.dto.RoomRequest;
-import com.infyniteloop.runningroom.dto.RoomResponse;
+import com.infyniteloop.runningroom.room.dto.RoomRequest;
+import com.infyniteloop.runningroom.room.dto.RoomResponse;
 import com.infyniteloop.runningroom.exception.DuplicateResourceException;
 import com.infyniteloop.runningroom.exception.NotFoundException;
-import com.infyniteloop.runningroom.model.Building;
-import com.infyniteloop.runningroom.model.Room;
-import com.infyniteloop.runningroom.model.mapper.RoomMapper;
-import com.infyniteloop.runningroom.repository.BuildingRepository;
-import com.infyniteloop.runningroom.repository.RoomRepository;
-import com.infyniteloop.runningroom.service.RoomService;
+import com.infyniteloop.runningroom.building.entity.Building;
+import com.infyniteloop.runningroom.room.entity.Room;
+import com.infyniteloop.runningroom.room.mapper.RoomMapper;
+import com.infyniteloop.runningroom.building.repository.BuildingRepository;
+import com.infyniteloop.runningroom.room.repository.RoomRepository;
+import com.infyniteloop.runningroom.room.service.RoomService;
 import com.infyniteloop.runningroom.util.TenantContext;
 import jakarta.persistence.EntityManager;
 import org.slf4j.Logger;

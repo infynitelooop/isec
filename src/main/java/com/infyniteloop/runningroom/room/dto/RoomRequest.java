@@ -1,4 +1,4 @@
-package com.infyniteloop.runningroom.dto;
+package com.infyniteloop.runningroom.room.dto;
 
 import com.infyniteloop.runningroom.model.enums.AttachmentType;
 import com.infyniteloop.runningroom.model.enums.CrewType;

@@ -1,5 +1,9 @@
-package com.infyniteloop.runningroom.model;
+package com.infyniteloop.runningroom.room.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.infyniteloop.runningroom.model.BaseEntity;
+import com.infyniteloop.runningroom.bed.entity.Bed;
+import com.infyniteloop.runningroom.building.entity.Building;
 import com.infyniteloop.runningroom.model.enums.AttachmentType;
 import com.infyniteloop.runningroom.model.enums.CrewType;
 import com.infyniteloop.runningroom.model.enums.RoomCategory;
@@ -40,7 +44,7 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @Filter(name = "tenantFilter", condition = "tenant_id = :tenantId") // Apply the filter condition
-public class Room extends BaseEntity{
+public class Room extends BaseEntity {
 
     @Id
     @GeneratedValue
@@ -60,6 +64,7 @@ public class Room extends BaseEntity{
     private int floor = 0;
 
     @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<Bed> beds;
 
     @ManyToOne(fetch = FetchType.LAZY)

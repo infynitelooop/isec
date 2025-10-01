@@ -73,7 +73,8 @@ public class EnumController {
         Map<String, EnumMapper.EnumResponse[]> result = new HashMap<>();
         result.put("roomTypes", enumMapper.mapEnum(RoomType.values()));
         result.put("crewTypes", enumMapper.mapEnum(CrewType.values()));
-        result.put("roomStatus", enumMapper.mapEnum(RoomStatus.values()));
+        result.put("roomStatus", enumMapper.mapEnum(RoomStatus.values()));  // TODO: need to remove this as occupancy is on Bed level
+        result.put("occupancyStatus", enumMapper.mapEnum(OccupancyStatus.values()));
         result.put("roomCategory", enumMapper.mapEnum(RoomCategory.values()));
         result.put("attachmentType", enumMapper.mapEnum(AttachmentType.values()));
 
