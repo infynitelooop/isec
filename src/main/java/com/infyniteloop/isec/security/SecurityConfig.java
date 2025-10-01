@@ -7,19 +7,21 @@ import com.infyniteloop.isec.security.models.Role;
 import com.infyniteloop.isec.security.models.User;
 import com.infyniteloop.isec.security.repository.RoleRepository;
 import com.infyniteloop.isec.security.repository.UserRepository;
+import com.infyniteloop.runningroom.booking.entity.Booking;
+import com.infyniteloop.runningroom.crew.repository.BookingRepository;
 import com.infyniteloop.runningroom.kitchen.entity.Menu;
 import com.infyniteloop.runningroom.kitchen.entity.MenuItem;
 import com.infyniteloop.runningroom.kitchen.enums.MealCategory;
 import com.infyniteloop.runningroom.kitchen.enums.MealType;
 import com.infyniteloop.runningroom.kitchen.repository.MenuItemRepository;
 import com.infyniteloop.runningroom.kitchen.repository.MenuRepository;
-import com.infyniteloop.runningroom.model.Bed;
-import com.infyniteloop.runningroom.model.Building;
-import com.infyniteloop.runningroom.model.Room;
+import com.infyniteloop.runningroom.bed.entity.Bed;
+import com.infyniteloop.runningroom.building.entity.Building;
+import com.infyniteloop.runningroom.room.entity.Room;
 import com.infyniteloop.runningroom.model.RunningRoom;
-import com.infyniteloop.runningroom.repository.BedRepository;
-import com.infyniteloop.runningroom.repository.BuildingRepository;
-import com.infyniteloop.runningroom.repository.RoomRepository;
+import com.infyniteloop.runningroom.bed.repository.BedRepository;
+import com.infyniteloop.runningroom.building.repository.BuildingRepository;
+import com.infyniteloop.runningroom.room.repository.RoomRepository;
 import com.infyniteloop.runningroom.repository.RunningRoomRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
@@ -150,7 +152,7 @@ public class SecurityConfig {
     public CommandLineRunner initData(RoleRepository roleRepository,
                                       UserRepository userRepository, PasswordEncoder passwordEncoder, RoomRepository roomRepository,
                                       BedRepository bedRepository, BuildingRepository buildingRepository, RunningRoomRepository runningRoomRepository,
-                                      MenuRepository menuRepository, MenuItemRepository menuItemRepository) {
+                                      MenuRepository menuRepository, MenuItemRepository menuItemRepository, BookingRepository bookingRepository) {
         return args -> {
             Role userRole = roleRepository.findByRoleName(AppRole.ROLE_USER)
                     .orElseGet(() -> roleRepository.save(new Role(AppRole.ROLE_USER)));
@@ -242,6 +244,30 @@ public class SecurityConfig {
                         return bedRepository.save(b);
                     });
 
+            bedRepository.findByRoomAndBedNumber(n102,1)
+                    .orElseGet(() -> {
+                        Bed b = new Bed();
+                        b.setBedNumber(1);
+                        b.setRoom(n102);
+                        b.setTenantId(tenantNdls.getId());
+                        return bedRepository.save(b);
+                    });
+             bedRepository.findByRoomAndBedNumber(n102,2)
+                    .orElseGet(() -> {
+                        Bed b = new Bed();
+                        b.setBedNumber(2);
+                        b.setRoom(n102);
+                        b.setTenantId(tenantNdls.getId());
+                        return bedRepository.save(b);
+                    });
+            bedRepository.findByRoomAndBedNumber(n102,3)
+                    .orElseGet(() -> {
+                        Bed b = new Bed();
+                        b.setBedNumber(3);
+                        b.setRoom(n102);
+                        b.setTenantId(tenantNdls.getId());
+                        return bedRepository.save(b);
+                    });
 
 
             if (!userRepository.existsByUserName("user1")) {
@@ -367,6 +393,17 @@ public class SecurityConfig {
                         menuRepository.save(menu);
                     }
                 }
+            }
+
+            List<Bed> beds = bedRepository.findAll();
+            for (Bed bed : beds) {
+                Booking booking = Booking.builder()
+                        .bed(bed)
+                        .build();
+                booking.setTenantId(bed.getTenantId());
+
+                // Set other fields as needed
+                bookingRepository.save(booking);
             }
 
         };

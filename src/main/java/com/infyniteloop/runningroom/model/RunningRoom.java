@@ -1,5 +1,6 @@
 package com.infyniteloop.runningroom.model;
 
+import com.infyniteloop.runningroom.building.entity.Building;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
