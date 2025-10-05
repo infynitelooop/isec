@@ -211,34 +211,34 @@ public class SecurityConfig {
                     .orElseGet(() -> roomRepository.save(build("L104", tenantLko.getId(), saveBuildingB)));
 
 
-            Bed bed1 = bedRepository.findByBedNumber("1")
+            Bed bed1 = bedRepository.findByRoomAndBedNumber(n101, 1)
                     .orElseGet(() -> {
                         Bed b = new Bed();
-                        b.setBedNumber("1");
+                        b.setBedNumber(1);
                         b.setRoom(n101);
                         b.setTenantId(tenantNdls.getId());
                         return bedRepository.save(b);
                     });
-            Bed bed2 = bedRepository.findByBedNumber("2")
+            Bed bed2 = bedRepository.findByRoomAndBedNumber(n101, 2)
                     .orElseGet(() -> {
                         Bed b = new Bed();
-                        b.setBedNumber("2");
+                        b.setBedNumber(2);
                         b.setRoom(n101);
                         b.setTenantId(tenantNdls.getId());
                         return bedRepository.save(b);
                     });
-            Bed bed3 = bedRepository.findByBedNumber("3")
+            Bed bed3 = bedRepository.findByRoomAndBedNumber(l103, 3)
                     .orElseGet(() -> {
                         Bed b = new Bed();
-                        b.setBedNumber("3");
+                        b.setBedNumber(3);
                         b.setRoom(l103);
                         b.setTenantId(tenantLko.getId());
                         return bedRepository.save(b);
                     });
-            Bed bed4 = bedRepository.findByBedNumber("4")
+            Bed bed4 = bedRepository.findByRoomAndBedNumber(l103,4)
                     .orElseGet(() -> {
                         Bed b = new Bed();
-                        b.setBedNumber("4");
+                        b.setBedNumber(4);
                         b.setRoom(l103);
                         b.setTenantId(tenantLko.getId());
                         return bedRepository.save(b);

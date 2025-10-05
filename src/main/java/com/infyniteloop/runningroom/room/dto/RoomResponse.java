@@ -14,7 +14,7 @@ public record RoomResponse(
         boolean ac,
         int capacity,
         int floor,
-        int beds,
+        int bedCount,
         String buildingId,
         String description,
         CrewType crewType,

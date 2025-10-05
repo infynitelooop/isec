@@ -16,7 +16,7 @@ public record BedRequest(
         @NotBlank(message = "bedNumber cannot be blank")
         @Min(value = 0, message = "Floor cannot be negative")
         @Max(value = 10, message = "Floor cannot be greater than 10")
-        String bedNumber,
+        int bedNumber,
 
         @NotBlank(message = "roomId cannot be blank")
         UUID roomId,

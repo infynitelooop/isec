@@ -1,15 +1,8 @@
 package com.infyniteloop.runningroom.room.mapper;
 
-<<<<<<< Updated upstream:src/main/java/com/infyniteloop/runningroom/model/mapper/RoomMapper.java
-import com.infyniteloop.runningroom.dto.RoomRequest;
-import com.infyniteloop.runningroom.dto.RoomResponse;
-import com.infyniteloop.runningroom.model.Room;
-=======
 import com.infyniteloop.runningroom.room.dto.RoomRequest;
 import com.infyniteloop.runningroom.room.dto.RoomResponse;
-import com.infyniteloop.runningroom.bed.entity.Bed;
 import com.infyniteloop.runningroom.room.entity.Room;
->>>>>>> Stashed changes:src/main/java/com/infyniteloop/runningroom/room/mapper/RoomMapper.java
 import org.mapstruct.Context;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

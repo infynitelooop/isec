@@ -7,7 +7,7 @@ import java.util.UUID;
 
 public record BedResponse(
         UUID id,
-        String bedNumber,
+        int bedNumber,
         UUID roomId,
         OccupancyStatus occupancyStatus,
         Room room) {

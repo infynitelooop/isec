@@ -50,6 +50,7 @@ public class Booking extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long bookingId;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "varchar(255) default 'AVAILABLE'")
     private OccupancyStatus occupancyStatus = OccupancyStatus.AVAILABLE; // BOOKED, OCCUPIED, VACANT
