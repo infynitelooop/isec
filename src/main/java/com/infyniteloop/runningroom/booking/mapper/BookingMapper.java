@@ -18,7 +18,7 @@ public interface BookingMapper {
     @Mapping(target = "crewId", source = "crew.crewId")
     @Mapping(target = "crewName", source = "crew.name")
     @Mapping(target = "crewDesignation", source = "crew.designation")
-    @Mapping(target = "crewType", source = "crew.type")
+    @Mapping(target = "crewType", source = "crew.crewType")
     BookingResponse toDto(Booking booking);
 
     // ---- REQUEST DTO -> ENTITY ----

@@ -1,14 +1,14 @@
-package com.infyniteloop.runningroom.controller;
+package com.infyniteloop.runningroom.enums.controller;
 
 import com.infyniteloop.runningroom.exception.NotFoundException;
-import com.infyniteloop.runningroom.model.enums.AttachmentType;
-import com.infyniteloop.runningroom.model.enums.CrewType;
+import com.infyniteloop.runningroom.enums.enums.AttachmentType;
+import com.infyniteloop.runningroom.enums.enums.CrewType;
 import com.infyniteloop.runningroom.kitchen.enums.MealCategory;
 import com.infyniteloop.runningroom.kitchen.enums.MealType;
-import com.infyniteloop.runningroom.model.enums.OccupancyStatus;
-import com.infyniteloop.runningroom.model.enums.RoomCategory;
-import com.infyniteloop.runningroom.model.enums.RoomStatus;
-import com.infyniteloop.runningroom.model.enums.RoomType;
+import com.infyniteloop.runningroom.enums.enums.OccupancyStatus;
+import com.infyniteloop.runningroom.enums.enums.RoomCategory;
+import com.infyniteloop.runningroom.enums.enums.RoomStatus;
+import com.infyniteloop.runningroom.enums.enums.RoomType;
 import com.infyniteloop.runningroom.model.mapper.EnumMapper;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

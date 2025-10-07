@@ -1,7 +1,7 @@
 package com.infyniteloop.runningroom.bed.dto;
 
 import com.infyniteloop.runningroom.room.entity.Room;
-import com.infyniteloop.runningroom.model.enums.OccupancyStatus;
+import com.infyniteloop.runningroom.enums.enums.OccupancyStatus;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;

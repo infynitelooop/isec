@@ -5,7 +5,7 @@ import com.infyniteloop.runningroom.kitchen.enums.MealCategory;
 import com.infyniteloop.runningroom.kitchen.enums.MealType;
 import com.infyniteloop.runningroom.model.BaseEntity;
 import com.infyniteloop.runningroom.bed.entity.Bed;
-import com.infyniteloop.runningroom.model.enums.OccupancyStatus;
+import com.infyniteloop.runningroom.enums.enums.OccupancyStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

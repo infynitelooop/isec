@@ -1,10 +1,10 @@
 package com.infyniteloop.runningroom.room.dto;
 
-import com.infyniteloop.runningroom.model.enums.AttachmentType;
-import com.infyniteloop.runningroom.model.enums.CrewType;
-import com.infyniteloop.runningroom.model.enums.RoomCategory;
-import com.infyniteloop.runningroom.model.enums.RoomStatus;
-import com.infyniteloop.runningroom.model.enums.RoomType;
+import com.infyniteloop.runningroom.enums.enums.AttachmentType;
+import com.infyniteloop.runningroom.enums.enums.CrewType;
+import com.infyniteloop.runningroom.enums.enums.RoomCategory;
+import com.infyniteloop.runningroom.enums.enums.RoomStatus;
+import com.infyniteloop.runningroom.enums.enums.RoomType;
 import java.util.UUID;
 
 public record RoomResponse(
