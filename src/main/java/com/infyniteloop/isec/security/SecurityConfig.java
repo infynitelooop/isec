@@ -148,7 +148,10 @@ public class SecurityConfig {
 
 
 
-
+    /**
+     * Initialize default roles and an admin user at application startup.
+     *
+     */
     @Bean
     public CommandLineRunner initData(RoleRepository roleRepository,
                                       UserRepository userRepository, PasswordEncoder passwordEncoder, RoomRepository roomRepository,
