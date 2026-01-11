@@ -191,28 +191,48 @@ public class SecurityConfig {
             buildingA.setAddress("123 Main St, City A");
             buildingA.setTenantId(tenantNdls.getId());
 
-            Building buildingB = new Building();
-            buildingB.setBuildingName("Building LKO B");
-            buildingB.setAddress("456 Elm St, City B");
-            buildingB.setTenantId(tenantLko.getId());
+            Building buildingNB = new Building();
+            buildingNB.setBuildingName("Building NDLS B");
+            buildingNB.setAddress("123B Main St, City A");
+            buildingNB.setTenantId(tenantNdls.getId());
+
+            Building buildingLA = new Building();
+            buildingLA.setBuildingName("Building LKO B");
+            buildingLA.setAddress("456 Elm St, City B");
+            buildingLA.setTenantId(tenantLko.getId());
 
 
 
 
             Building saveBuildingA = buildingRepository.findByBuildingName("Building NDLS A")
                     .orElseGet(() -> buildingRepository.save(buildingA));
+            Building saveBuildingNB = buildingRepository.findByBuildingName("Building NDLS B")
+                    .orElseGet(() -> buildingRepository.save(buildingNB));
             Building saveBuildingB = buildingRepository.findByBuildingName("Building LKO B")
-                    .orElseGet(() -> buildingRepository.save(buildingB));
+                    .orElseGet(() -> buildingRepository.save(buildingLA));
 
 
             Room n101 = roomRepository.findByRoomNumber("N101")
                     .orElseGet(() -> roomRepository.save(build("N101", tenantNdls.getId(), saveBuildingA)));
             Room n102 = roomRepository.findByRoomNumber("N102")
                     .orElseGet(() -> roomRepository.save(build("N102", tenantNdls.getId(), saveBuildingA)));
+            Room nb102 = roomRepository.findByRoomNumber("NB102")
+                    .orElseGet(() -> roomRepository.save(build("NB102", tenantNdls.getId(), saveBuildingNB)));
             Room l103 = roomRepository.findByRoomNumber("L103")
                     .orElseGet(() -> roomRepository.save(build("L103", tenantLko.getId(), saveBuildingB)));
             Room l104 = roomRepository.findByRoomNumber("L104")
                     .orElseGet(() -> roomRepository.save(build("L104", tenantLko.getId(), saveBuildingB)));
+
+
+
+            Bed bednb1 = bedRepository.findByRoomAndBedNumber(nb102, 1)
+                    .orElseGet(() -> {
+                        Bed b = new Bed();
+                        b.setBedNumber(1);
+                        b.setRoom(nb102);
+                        b.setTenantId(tenantNdls.getId());
+                        return bedRepository.save(b);
+                    });
 
 
             Bed bed1 = bedRepository.findByRoomAndBedNumber(n101, 1)
@@ -350,7 +370,6 @@ public class SecurityConfig {
                     if (menuRepository.findByMenuDate(menuDate).isEmpty()) {
                         Menu menu = new Menu();
                         menu.setMenuDate(menuDate);
-                        menu.setTenantId(tenantNdls.getId());
 
                         MenuItem item1 = new MenuItem();
                         item1.setName("Aloo Puri");
@@ -394,7 +413,25 @@ public class SecurityConfig {
                         item5.setMenu(menu);
                         menu.setItems(List.of(item1, item2, item3, item4, item5));
 
+                        menu.setTenantId(tenantNdls.getId());
                         menuRepository.save(menu);
+
+                        // Clone menu
+                        Menu menuLko = new Menu();
+                        menuLko.setMenuDate(menuDate);
+                        List<MenuItem> itemsLko = menu.getItems().stream().map(originalItem -> {
+                            MenuItem newItem = new MenuItem();
+                            newItem.setName(originalItem.getName());
+                            newItem.setDescription(originalItem.getDescription());
+                            newItem.setPrice(originalItem.getPrice());
+                            newItem.setMealType(originalItem.getMealType());
+                            newItem.setMealCategory(originalItem.getMealCategory());
+                            newItem.setMenu(menuLko);
+                            return newItem;
+                        }).toList();
+                        menuLko.setItems(itemsLko);
+                        menuLko.setTenantId(tenantLko.getId());
+                        menuRepository.save(menuLko);
                     }
                 }
             }
