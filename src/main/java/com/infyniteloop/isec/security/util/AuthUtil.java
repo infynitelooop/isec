@@ -12,7 +12,6 @@ import java.util.UUID;
 @Component
 public class AuthUtil {
 
-
     private final UserRepository userRepository;
 
     public AuthUtil(UserRepository userRepository) {
