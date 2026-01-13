@@ -1,4 +1,4 @@
-package com.infyniteloop.runningroom.model.enums;
+package com.infyniteloop.runningroom.enums.enums;
 
 public enum CrewType {
     LOCO_PILOT,

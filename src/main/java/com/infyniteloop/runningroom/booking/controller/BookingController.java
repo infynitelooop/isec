@@ -2,6 +2,7 @@ package com.infyniteloop.runningroom.booking.controller;
 
 import com.infyniteloop.runningroom.booking.dto.BedOccupancy;
 import com.infyniteloop.runningroom.booking.dto.BookingResponse;
+import com.infyniteloop.runningroom.booking.dto.BuildingOccupancyResponse;
 import com.infyniteloop.runningroom.booking.entity.Booking;
 import com.infyniteloop.runningroom.booking.service.BookingService;
 import org.springframework.http.ResponseEntity;
@@ -35,7 +36,7 @@ public class BookingController {
     }
 
     @GetMapping("/dashboard")
-    public ResponseEntity<Map<String, List<BedOccupancy>>> getBookingsDashboard() {
+    public ResponseEntity<List<BuildingOccupancyResponse>> getBookingsDashboard() {
         return ResponseEntity.ok(bookingService.getBookingsDashBoard());
     }
 

@@ -17,7 +17,7 @@ public class TenantContext {
         if (tenantId == null) {
             throw new NotFoundException("TenantId not found in request context");
         }
-        return Optional.ofNullable(tenantId).orElseThrow(() -> new NotFoundException("TenantId not found in request context"));
+        return Optional.of(tenantId).orElseThrow(() -> new NotFoundException("TenantId not found in request context"));
     }
 
     public static void clear() {

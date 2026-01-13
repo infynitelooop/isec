@@ -1,4 +1,4 @@
-package com.infyniteloop.runningroom.model.enums;
+package com.infyniteloop.runningroom.enums.enums;
 
 /**
  * Enum representing the status of a room.

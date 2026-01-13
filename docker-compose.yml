@@ -1,0 +1,52 @@
+
+services:
+#  db:
+#    image: mysql:8
+#    container_name: my-mysql
+#    environment:
+#      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+#      - MYSQL_DATABASE=${DB_NAME}
+#      - MYSQL_USER=${DB_USER}
+#      - MYSQL_PASSWORD=${DB_PASSWORD}
+#    volumes:
+#      - mysql_data:/var/lib/mysql
+#    healthcheck:
+#      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+#      interval: 10s
+#      timeout: 5s
+#      retries: 5
+##    ports:
+##      - "3307:3306"   # Map to 3307 on host for Workbench
+#    networks:
+#      - app-network
+
+  app:
+    build: .
+    container_name: springboot-app
+#    depends_on:
+#      db:
+#        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/${DB_NAME}
+      SPRING_DATASOURCE_USERNAME: user
+      SPRING_DATASOURCE_PASSWORD: 96Cse@124
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      JWT_PRIVATE_KEY: ${JWT_PRIVATE_KEY}
+      JWT_PUBLIC_KEY: ${JWT_PUBLIC_KEY}
+    ports:
+      - "8080:8080"
+    networks:
+      - app-network
+
+#  frontend:
+#    build: ./frontend
+#    container_name: react
+#    ports:
+#      - "80:80"
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mysql_data:

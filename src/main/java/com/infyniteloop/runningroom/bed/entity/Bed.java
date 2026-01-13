@@ -2,7 +2,7 @@ package com.infyniteloop.runningroom.bed.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.infyniteloop.runningroom.model.BaseEntity;
-import com.infyniteloop.runningroom.model.enums.OccupancyStatus;
+import com.infyniteloop.runningroom.enums.enums.OccupancyStatus;
 import com.infyniteloop.runningroom.room.entity.Room;
 import jakarta.persistence.*;
 import lombok.Getter;

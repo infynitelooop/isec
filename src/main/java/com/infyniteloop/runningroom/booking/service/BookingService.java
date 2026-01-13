@@ -1,14 +1,14 @@
 package com.infyniteloop.runningroom.booking.service;
 
 
-import com.infyniteloop.runningroom.booking.dto.BedOccupancy;
 import com.infyniteloop.runningroom.booking.dto.BookingResponse;
+import com.infyniteloop.runningroom.booking.dto.BuildingOccupancyResponse;
+import com.infyniteloop.runningroom.booking.dto.RoomOccupancyResponse;
 import com.infyniteloop.runningroom.booking.entity.Booking;
 import com.infyniteloop.runningroom.booking.mapper.BookingMapper;
 import com.infyniteloop.runningroom.crew.entity.Crew;
 import com.infyniteloop.runningroom.crew.repository.BookingRepository;
 import com.infyniteloop.runningroom.crew.repository.CrewRepository;
-import com.infyniteloop.runningroom.model.enums.OccupancyStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -16,8 +16,9 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
+
+import static java.util.Arrays.stream;
 
 @Service
 public class BookingService {
@@ -41,7 +42,7 @@ public class BookingService {
     }
 
     // Get All Bookings
-    public Map<String, List<BedOccupancy>> getBookingsDashBoard() {
+    public List<BuildingOccupancyResponse> getBookingsDashBoard() {
         // Find all records and convert to BookingResponse DTOs
 
 
@@ -50,27 +51,29 @@ public class BookingService {
                 .map(bookingMapper::toDto)
                 .toList();
 
+        // Group the bookings by building name then by room nameø
         return bookings.stream()
                 .collect(Collectors.groupingBy(
-                        BookingResponse::roomNumber,               // group by room
-                        LinkedHashMap::new,                   // preserve insertion order
-                        Collectors.mapping(
-                                b -> BedOccupancy.builder()
-                                        .bedNumber(b.bedNumber())
-                                        .occupancyStatus(b.occupancyStatus() == null ? OccupancyStatus.AVAILABLE.toString() : b.occupancyStatus())
-                                        .crewId(b.crewId())
-                                        .crewName(b.crewName())
-                                        .crewDesignation(b.crewDesignation())
-                                        .crewType(b.crewType())
-                                        .mealType(b.mealType())
-                                        .vegNonVeg(b.vegNonVeg())
-                                        .checkInTime(b.checkInTime())
-                                        .wakeUpTime(b.wakeUpTime())
-                                        .restHours(b.restHours())
-                                        .build(),
+                        BookingResponse::buildingName,
+                        LinkedHashMap::new,
+                        Collectors.groupingBy(
+                                BookingResponse::roomNumber,
+                                LinkedHashMap::new,
                                 Collectors.toList()
                         )
-                ));
+                ))
+                .entrySet().stream()
+                .map(buildingEntry -> new BuildingOccupancyResponse(
+                        buildingEntry.getKey(),
+                        buildingEntry.getValue().entrySet().stream()
+                                .map(roomEntry -> new RoomOccupancyResponse(
+                                        roomEntry.getKey(),
+                                        roomEntry.getValue()                     // List<BookingResponse>
+                                ))
+                                .toList()                                   // List<RoomOccupancyResponse>
+                ))
+                .toList();
+
     }
 
 

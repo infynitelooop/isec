@@ -21,6 +21,7 @@ public class TenantFilterAspect {
 
     @Before("execution(* com.infyniteloop.runningroom.service..*(..)) || " +
             "execution(* com.infyniteloop.runningroom.kitchen.service..*(..)) || " +
+            "execution(* com.infyniteloop.runningroom.room.service..*(..)) || " +
             "execution(* com.infyniteloop.runningroom.booking.service..*(..))")
     public void enableTenantFilter() {
         UUID tenantId = TenantContext.getCurrentTenant();

@@ -22,7 +22,7 @@ import java.util.UUID;
 @Table(name = "menus")
 @Getter
 @Setter
-@Filter(name = "tenantFilter", condition = "tenant_id = :tenantId") // Apply the filter condition
+@Filter(name = "tenantFilter", condition = "tenant_id = :tenantId")
 public class Menu extends BaseEntity {
 
     @Id
