@@ -9,6 +9,7 @@ pipeline {
         EC2_USER = "ubuntu"
         EC2_HOST = "13.233.113.214"
         DEPLOY_DIR = "/home/ubuntu/deploy"
+        PATH = "/usr/local/bin:${env.PATH}"
     }
 
     stages {
