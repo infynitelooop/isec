@@ -29,3 +29,4 @@ EXPOSE 8080
 
 # Run the application
 ENTRYPOINT ["/wait-for-mysql.sh", "db", "java", "-jar", "app.jar"]
+
