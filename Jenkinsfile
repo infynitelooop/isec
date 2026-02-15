@@ -3,8 +3,12 @@ pipeline {
 
     environment {
         DOCKERHUB_USER = "infyniteloop"
-        BACKEND_IMAGE  = "infyniteloop/isec:latest"
-        FRONTEND_IMAGE = "infyniteloop/runningroom:latest"
+        BACKEND_IMAGE  = "infynitelooop/isec:latest"
+        FRONTEND_IMAGE = "infynitelooop/runningroom:latest"
+
+        DOCHUB_BACKEND_IMAGE  = "infyniteloop/isec:latest"
+        DOCHUB_FRONTEND_IMAGE = "infyniteloop/runningroom:latest"
+
 
         EC2_USER = "ubuntu"
         EC2_HOST = "13.233.113.214"
@@ -17,7 +21,7 @@ pipeline {
         stage("Checkout Backend") {
             steps {
                 git branch: "master",
-                    url: "https://github.com/infyniteloop/isec.git"
+                    url: "https://github.com/infynitelooop/isec.git"
             }
         }
 
@@ -25,7 +29,7 @@ pipeline {
             steps {
                 dir("frontend") {
                     git branch: "master",
-                        url: "https://github.com/infyniteloop/runningroom.git"
+                        url: "https://github.com/infynitelooop/runningroom.git"
                 }
             }
         }
@@ -63,8 +67,8 @@ pipeline {
         stage("Push Images to DockerHub") {
             steps {
                 sh """
-                docker push $BACKEND_IMAGE
-                docker push $FRONTEND_IMAGE
+                docker push $BDOCHUB_BACKEND_IMAGE
+                docker push $DOCHUB_FRONTEND_IMAGE
                 """
             }
         }
