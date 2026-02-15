@@ -28,7 +28,7 @@ A Spring Boot application for managing notes with audit logging.
 1. Clone the repository:
 
 ```bash
-git clone git@github.com:infynitelooop/isec.git 
+git clone git@github.com:infyniteloop/isec.git 
 cd isec
 ```
 
