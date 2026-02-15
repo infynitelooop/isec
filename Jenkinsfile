@@ -12,7 +12,7 @@ pipeline {
 
 
         EC2_USER = "ubuntu"
-        EC2_HOST = "13.233.113.214"
+        EC2_HOST = "15.206.168.32"
         DEPLOY_DIR = "/home/ubuntu/deploy"
         PATH = "/usr/local/bin:${env.PATH}"
     }
