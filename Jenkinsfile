@@ -2,9 +2,9 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_USER = "infynitelooop"
-        BACKEND_IMAGE  = "infynitelooop/isec:latest"
-        FRONTEND_IMAGE = "infynitelooop/runningroom:latest"
+        DOCKERHUB_USER = "infyniteloop"
+        BACKEND_IMAGE  = "infyniteloop/isec:latest"
+        FRONTEND_IMAGE = "infyniteloop/runningroom:latest"
 
         EC2_USER = "ubuntu"
         EC2_HOST = "13.233.113.214"
@@ -17,7 +17,7 @@ pipeline {
         stage("Checkout Backend") {
             steps {
                 git branch: "master",
-                    url: "https://github.com/infynitelooop/isec.git"
+                    url: "https://github.com/infyniteloop/isec.git"
             }
         }
 
@@ -25,7 +25,7 @@ pipeline {
             steps {
                 dir("frontend") {
                     git branch: "master",
-                        url: "https://github.com/infynitelooop/runningroom.git"
+                        url: "https://github.com/infyniteloop/runningroom.git"
                 }
             }
         }
