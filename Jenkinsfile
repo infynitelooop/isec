@@ -71,8 +71,8 @@ pipeline {
         stage("Push Images to DockerHub") {
             steps {
                 sh """
-                docker push $DOCHUB_BACKEND_IMAGE
-                docker push $DOCHUB_FRONTEND_IMAGE
+                docker push $BACKEND_IMAGE
+                docker push $FRONTEND_IMAGE
                 """
             }
         }
