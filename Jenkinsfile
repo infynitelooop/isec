@@ -38,7 +38,7 @@ pipeline {
         stage("Build Backend Docker Image") {
             steps {
                 sh """
-                docker build --no-cache --platform linux/amd64 -t $BACKEND_IMAGE .
+                docker build -t $BACKEND_IMAGE .
                 """
             }
         }
@@ -46,7 +46,7 @@ pipeline {
         stage("Build Frontend Docker Image") {
             steps {
                 sh """
-                docker build --no-cache --platform linux/amd64 -t $FRONTEND_IMAGE ./frontend
+                docker build -t $FRONTEND_IMAGE ./frontend
                 """
             }
         }
