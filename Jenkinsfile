@@ -12,7 +12,7 @@ pipeline {
 
 
         EC2_USER = "ubuntu"
-        EC2_HOST = "13.233.113.214"
+        EC2_HOST = "15.206.168.32"
         DEPLOY_DIR = "/home/ubuntu/deploy"
         PATH = "/usr/local/bin:${env.PATH}"
     }
@@ -38,7 +38,7 @@ pipeline {
         stage("Build Backend Docker Image") {
             steps {
                 sh """
-                docker build --no-cache --platform linux/amd64 -t $BACKEND_IMAGE .
+                docker build -t $BACKEND_IMAGE .
                 """
             }
         }
@@ -46,7 +46,7 @@ pipeline {
         stage("Build Frontend Docker Image") {
             steps {
                 sh """
-                docker build --no-cache --platform linux/amd64 -t $FRONTEND_IMAGE ./frontend
+                docker build -t $FRONTEND_IMAGE ./frontend
                 """
             }
         }

@@ -1,52 +1,48 @@
-
 services:
-#  db:
-#    image: mysql:8
-#    container_name: my-mysql
-#    environment:
-#      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
-#      - MYSQL_DATABASE=${DB_NAME}
-#      - MYSQL_USER=${DB_USER}
-#      - MYSQL_PASSWORD=${DB_PASSWORD}
-#    volumes:
-#      - mysql_data:/var/lib/mysql
-#    healthcheck:
-#      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
-#      interval: 10s
-#      timeout: 5s
-#      retries: 5
-##    ports:
-##      - "3307:3306"   # Map to 3307 on host for Workbench
-#    networks:
-#      - app-network
-
-  app:
-    build: .
-    container_name: springboot-app
-#    depends_on:
-#      db:
-#        condition: service_healthy
+  db:
+    image: mysql:8
+    container_name: mysql
+    restart: always
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/${DB_NAME}
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: isecure
+      MYSQL_USER: user
+      MYSQL_PASSWORD: userpass
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - appnet
+
+  backend:
+    image: infyniteloop/isec:latest
+    container_name: backend
+    platform: linux/amd64
+    restart: always
+    depends_on:
+      - db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/isecure
       SPRING_DATASOURCE_USERNAME: user
-      SPRING_DATASOURCE_PASSWORD: 96Cse@124
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
-      JWT_PRIVATE_KEY: ${JWT_PRIVATE_KEY}
-      JWT_PUBLIC_KEY: ${JWT_PUBLIC_KEY}
+      SPRING_DATASOURCE_PASSWORD: userpass
     ports:
       - "8080:8080"
     networks:
-      - app-network
+      - appnet
 
-#  frontend:
-#    build: ./frontend
-#    container_name: react
-#    ports:
-#      - "80:80"
-
-networks:
-  app-network:
-    driver: bridge
+  frontend:
+    image: infyniteloop/runningroom:latest
+    container_name: frontend
+    platform: linux/amd64
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+    networks:
+      - appnet
 
 volumes:
   mysql_data:
+
+networks:
+  appnet:
