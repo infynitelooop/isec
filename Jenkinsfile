@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    triggers {
+        pollSCM('H/1 * * * *')  // optional fallback
+    }
+
     environment {
         DOCKERHUB_USER = "infyniteloop"
         BACKEND_IMAGE  = "infynitelooop/isec:latest"
@@ -67,7 +71,7 @@ pipeline {
         stage("Push Images to DockerHub") {
             steps {
                 sh """
-                docker push $BDOCHUB_BACKEND_IMAGE
+                docker push $DOCHUB_BACKEND_IMAGE
                 docker push $DOCHUB_FRONTEND_IMAGE
                 """
             }
