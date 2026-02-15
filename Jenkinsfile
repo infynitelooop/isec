@@ -7,11 +7,8 @@ pipeline {
 
     environment {
         DOCKERHUB_USER = "infyniteloop"
-        BACKEND_IMAGE  = "infynitelooop/isec:latest"
-        FRONTEND_IMAGE = "infynitelooop/runningroom:latest"
-
-        DOCHUB_BACKEND_IMAGE  = "infyniteloop/isec:latest"
-        DOCHUB_FRONTEND_IMAGE = "infyniteloop/runningroom:latest"
+        BACKEND_IMAGE  = "infyniteloop/isec:latest"
+        FRONTEND_IMAGE = "infyniteloop/runningroom:latest"
 
 
         EC2_USER = "ubuntu"
