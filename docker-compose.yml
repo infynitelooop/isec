@@ -16,7 +16,6 @@ services:
   backend:
     image: infyniteloop/isec:latest
     container_name: backend
-    platform: linux/amd64
     restart: always
     depends_on:
       - db
@@ -32,7 +31,6 @@ services:
   frontend:
     image: infyniteloop/runningroom:latest
     container_name: frontend
-    platform: linux/amd64
     restart: always
     depends_on:
       - backend
