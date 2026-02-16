@@ -12,7 +12,7 @@ pipeline {
 
 
         EC2_USER = "ubuntu"
-        EC2_HOST = "65.2.145.128"
+        //EC2_HOST = "65.2.145.128" Placed on Jenkins credentials for security
         DEPLOY_DIR = "/home/ubuntu/app"
         PATH = "/usr/local/bin:${env.PATH}"
     }
