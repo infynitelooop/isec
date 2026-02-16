@@ -57,6 +57,10 @@ public class SecurityConfig {
     @Value("${app.frontend.url}")
     String frontendUrl;
 
+    @Value("${app.frontend.url}")
+    String backendUrl;
+
+
     private final AuthEntryPointJwt unauthorizedHandler;
 
     public SecurityConfig(AuthEntryPointJwt unauthorizedHandler) {
@@ -130,7 +134,7 @@ public class SecurityConfig {
         CorsConfiguration corsConfig = new CorsConfiguration();
         // Allow specific origins
 
-        corsConfig.setAllowedOrigins(List.of(frontendUrl));
+        corsConfig.setAllowedOrigins(List.of(frontendUrl, backendUrl));
 
         // Allow specific HTTP methods
         corsConfig.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
