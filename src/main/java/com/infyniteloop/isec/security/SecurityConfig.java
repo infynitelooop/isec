@@ -7,6 +7,7 @@ import com.infyniteloop.isec.security.models.Role;
 import com.infyniteloop.isec.security.models.User;
 import com.infyniteloop.isec.security.repository.RoleRepository;
 import com.infyniteloop.isec.security.repository.UserRepository;
+import com.infyniteloop.runningroom.aop.LoggingAspect;
 import com.infyniteloop.runningroom.booking.entity.Booking;
 import com.infyniteloop.runningroom.crew.repository.BookingRepository;
 import com.infyniteloop.runningroom.kitchen.entity.Menu;
@@ -23,6 +24,8 @@ import com.infyniteloop.runningroom.bed.repository.BedRepository;
 import com.infyniteloop.runningroom.building.repository.BuildingRepository;
 import com.infyniteloop.runningroom.room.repository.RoomRepository;
 import com.infyniteloop.runningroom.repository.RunningRoomRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
@@ -54,12 +57,10 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @EnableMethodSecurity(prePostEnabled = true, securedEnabled = true, jsr250Enabled = true)
 public class SecurityConfig {
 
+    private static final Logger log = LoggerFactory.getLogger(SecurityConfig.class);
+
     @Value("${app.frontend.url}")
     String frontendUrl;
-
-    @Value("${app.frontend.url}")
-    String backendUrl;
-
 
     private final AuthEntryPointJwt unauthorizedHandler;
 
@@ -134,7 +135,8 @@ public class SecurityConfig {
         CorsConfiguration corsConfig = new CorsConfiguration();
         // Allow specific origins
 
-        corsConfig.setAllowedOrigins(List.of(frontendUrl, backendUrl));
+        log.info(">>frontendUrls={}", frontendUrl);
+        corsConfig.setAllowedOrigins(List.of(frontendUrl));
 
         // Allow specific HTTP methods
         corsConfig.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
