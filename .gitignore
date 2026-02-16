@@ -20,7 +20,7 @@ spring.log
 .DS_Store
 
 # Environment / secrets
-.env
+#.env
 application*.yml
 application*.properties
 
