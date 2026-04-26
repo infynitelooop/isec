@@ -1,4 +1,4 @@
-package com.infyniteloop.runningroom.model;
+package com.infyniteloop.runningroom.runningroom.entity;
 
 import com.infyniteloop.runningroom.building.entity.Building;
 import jakarta.persistence.*;

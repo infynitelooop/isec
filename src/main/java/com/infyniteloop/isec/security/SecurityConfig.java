@@ -2,29 +2,11 @@ package com.infyniteloop.isec.security;
 
 import com.infyniteloop.isec.security.jwt.AuthEntryPointJwt;
 import com.infyniteloop.isec.security.jwt.AuthTokenFilter;
-import com.infyniteloop.isec.security.models.AppRole;
-import com.infyniteloop.isec.security.models.Role;
-import com.infyniteloop.isec.security.models.User;
-import com.infyniteloop.isec.security.repository.RoleRepository;
-import com.infyniteloop.isec.security.repository.UserRepository;
-import com.infyniteloop.runningroom.booking.entity.Booking;
-import com.infyniteloop.runningroom.crew.repository.BookingRepository;
-import com.infyniteloop.runningroom.kitchen.entity.Menu;
-import com.infyniteloop.runningroom.kitchen.entity.MenuItem;
-import com.infyniteloop.runningroom.kitchen.enums.MealCategory;
-import com.infyniteloop.runningroom.kitchen.enums.MealType;
-import com.infyniteloop.runningroom.kitchen.repository.MenuItemRepository;
-import com.infyniteloop.runningroom.kitchen.repository.MenuRepository;
-import com.infyniteloop.runningroom.bed.entity.Bed;
 import com.infyniteloop.runningroom.building.entity.Building;
 import com.infyniteloop.runningroom.room.entity.Room;
-import com.infyniteloop.runningroom.model.RunningRoom;
-import com.infyniteloop.runningroom.bed.repository.BedRepository;
-import com.infyniteloop.runningroom.building.repository.BuildingRepository;
-import com.infyniteloop.runningroom.room.repository.RoomRepository;
-import com.infyniteloop.runningroom.repository.RunningRoomRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -41,10 +23,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 import static org.springframework.security.config.Customizer.withDefaults;
@@ -53,6 +33,8 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true, securedEnabled = true, jsr250Enabled = true)
 public class SecurityConfig {
+
+    private static final Logger log = LoggerFactory.getLogger(SecurityConfig.class);
 
     @Value("${app.frontend.url}")
     String frontendUrl;
@@ -130,6 +112,7 @@ public class SecurityConfig {
         CorsConfiguration corsConfig = new CorsConfiguration();
         // Allow specific origins
 
+        log.info(">>frontendUrls={}", frontendUrl);
         corsConfig.setAllowedOrigins(List.of(frontendUrl));
 
         // Allow specific HTTP methods

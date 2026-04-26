@@ -6,7 +6,7 @@ import com.infyniteloop.runningroom.exception.DuplicateResourceException;
 import com.infyniteloop.runningroom.exception.NotFoundException;
 import com.infyniteloop.runningroom.building.entity.Building;
 import com.infyniteloop.runningroom.building.repository.BuildingRepository;
-import com.infyniteloop.runningroom.repository.RunningRoomRepository;
+import com.infyniteloop.runningroom.runningroom.repository.RunningRoomRepository;
 import com.infyniteloop.runningroom.building.service.BuildingService;
 import com.infyniteloop.runningroom.util.TenantContext;
 import jakarta.persistence.EntityManager;
