@@ -120,6 +120,17 @@ docker run -e JWT_PRIVATE_KEY=MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQ
 
 ```
 
+### Passwords for testing
+
+Put a breakpoint in AuthController signin method and use encoder.encode on any string to generate encrypted password
+
+```aiignore
+SET SQL_SAFE_UPDATES = 0;
+UPDATE isecure.users SET `password`='$2a$10$mXa0HCAmv7C9eunESbWD/OL0oK.2lZdWAf.QSYGj.zwJkGc0mSsEu';
+```
+
+
+
 ## Contributing
 
 1. Fork the repository
