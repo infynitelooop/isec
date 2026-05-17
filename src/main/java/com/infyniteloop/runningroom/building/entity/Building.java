@@ -1,5 +1,6 @@
 package com.infyniteloop.runningroom.building.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.infyniteloop.runningroom.model.BaseEntity;
 import com.infyniteloop.runningroom.room.entity.Room;
 import jakarta.persistence.*;
@@ -30,6 +31,7 @@ public class Building extends BaseEntity {
     private String description;
 
     @OneToMany(mappedBy = "building", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<Room> rooms;
 
 }

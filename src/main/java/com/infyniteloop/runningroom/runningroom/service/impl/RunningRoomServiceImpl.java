@@ -51,7 +51,6 @@ public class RunningRoomServiceImpl implements RunningRoomService {
         runningRoom.setName(request.getName());
         runningRoom.setDescription(request.getDescription());
         runningRoom.setDivision(request.getDivision());
-        runningRoom.setZone(request.getZone());
         runningRoom.setSubsidisedMeal(request.getSubsidisedMeal());
         return runningRoomRepository.save(runningRoom);
     }

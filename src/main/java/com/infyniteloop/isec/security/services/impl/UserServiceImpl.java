@@ -1,7 +1,6 @@
 package com.infyniteloop.isec.security.services.impl;
 
 
-import com.infyniteloop.isec.security.dtos.UserDTO;
 import com.infyniteloop.isec.security.dtos.UserRequest;
 import com.infyniteloop.isec.security.dtos.UserResponse;
 import com.infyniteloop.isec.security.mapper.UserMapper;

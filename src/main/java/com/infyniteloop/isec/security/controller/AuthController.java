@@ -9,6 +9,7 @@ import com.infyniteloop.isec.security.repository.RoleRepository;
 import com.infyniteloop.isec.security.repository.UserRepository;
 import com.infyniteloop.isec.security.services.TotpService;
 import com.infyniteloop.isec.security.services.UserService;
+import com.infyniteloop.isec.security.services.impl.UserDetailsImpl;
 import com.infyniteloop.isec.security.util.AuthUtil;
 import com.warrenstrange.googleauth.GoogleAuthenticatorKey;
 import io.swagger.v3.oas.annotations.Operation;
@@ -156,6 +157,21 @@ public class AuthController {
     /**
      * Get details of the authenticated user.
      *
+     *
+     * How @AuthenticationPrincipal is populated
+     * Spring resolves @AuthenticationPrincipal from the SecurityContext: SecurityContextHolder.getContext().getAuthentication().getPrincipal()
+     * Your AuthTokenFilter (runs before controllers) is responsible for:
+     * 1. extracting the JWT from the incoming request,
+     * 2. validating it,
+     * 3. loading UserDetails (your UserDetailsServiceImpl.loadUserByUsername(...) → UserDetailsImpl),
+     * 4. creating a UsernamePasswordAuthenticationToken and calling SecurityContextHolder.getContext().setAuthentication(authentication).
+     * After step 4, Spring will inject that principal into controller method parameters annotated with @AuthenticationPrincipal.
+     *
+     * Why your React app must send the token
+     * 1. The controller GET /api/auth/user is protected and expects authenticated requests. The server does not maintain sessions (SessionCreationPolicy.STATELESS).
+     * 2. The server expects the JWT in the HTTP header named "Authorization" with the text "Bearer " prefix. Example header: Authorization: Bearer eyJ...token...
+     * 3. If React does not include this header (or sends the token in an unsupported place), AuthTokenFilter.parseJwt() returns null and no authentication is set → @AuthenticationPrincipal will be null or Spring will reject the request (401/403 depending on endpoint/security config).
+     *
      * @param userDetails The authenticated user's details.
      * @return ResponseEntity with user details.
      */
@@ -163,11 +179,22 @@ public class AuthController {
     @Operation(summary = "Get User Details", description = "Retrieve details of the authenticated user")
     public ResponseEntity<?> getUserDetails(@AuthenticationPrincipal UserDetails userDetails) {
         User user = userService.findByUsername(userDetails.getUsername());
+        String location = "";
+        String division = "";
+        String zone = "";
 
         List<String> roles = userDetails.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .toList();
 
+        if(userDetails instanceof UserDetails) {
+            UserDetailsImpl userDetailsImpl = (UserDetailsImpl) userDetails;
+            location = userDetailsImpl.getRunningRoomName();
+            division = userDetailsImpl.getDivisionName();
+            zone = userDetailsImpl.getZoneName();
+        }
+
+        //TODO : Use Builder Pattern
         UserInfoResponse response = new UserInfoResponse(
                 user.getUserId(),
                 user.getUserName(),
@@ -182,6 +209,9 @@ public class AuthController {
                 user.getCredentialsExpiryDate(),
                 user.getAccountExpiryDate(),
                 user.isTwoFactorEnabled(),
+                location,
+                division,
+                zone,
                 roles
         );
 

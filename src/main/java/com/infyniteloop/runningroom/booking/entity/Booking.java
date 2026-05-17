@@ -1,5 +1,6 @@
 package com.infyniteloop.runningroom.booking.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.infyniteloop.runningroom.crew.entity.Crew;
 import com.infyniteloop.runningroom.kitchen.enums.MealCategory;
 import com.infyniteloop.runningroom.kitchen.enums.MealType;
@@ -57,6 +58,7 @@ public class Booking extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "bed_id")
+    @JsonBackReference
     private Bed bed;
 
 
@@ -71,6 +73,7 @@ public class Booking extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "crew_id")
+    @JsonBackReference
     private Crew crew;
 
     private String signOffStation;
