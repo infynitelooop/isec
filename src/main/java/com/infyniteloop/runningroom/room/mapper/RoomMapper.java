@@ -25,6 +25,13 @@ public interface RoomMapper {
         existingRoom.setAttachment(roomRequest.attachment());
     }
 
+
+//    In your multi-tenant application, when creating a new Room entity:
+//    The RoomRequest DTO contains user-provided fields (roomNumber, capacity, type, etc.)
+//    But the tenantId is not sent by the client in the request
+//    It comes from the authenticated user's context (set via TenantContext)
+//    The mapper needs this tenantId to automatically associate the created Room with the correct tenant
+
     // request -> entity
     @Mapping(target = "id", ignore = true)
     @Mapping(source = "roomType", target = "type")

@@ -10,7 +10,10 @@ import com.infyniteloop.runningroom.bed.repository.BedRepository;
 import com.infyniteloop.runningroom.booking.entity.Booking;
 import com.infyniteloop.runningroom.building.entity.Building;
 import com.infyniteloop.runningroom.building.repository.BuildingRepository;
-import com.infyniteloop.runningroom.crew.repository.BookingRepository;
+import com.infyniteloop.runningroom.crew.entity.Crew;
+import com.infyniteloop.runningroom.booking.repository.BookingRepository;
+import com.infyniteloop.runningroom.crew.repository.CrewRepository;
+import com.infyniteloop.runningroom.enums.enums.OccupancyStatus;
 import com.infyniteloop.runningroom.kitchen.entity.Menu;
 import com.infyniteloop.runningroom.kitchen.entity.MenuItem;
 import com.infyniteloop.runningroom.kitchen.enums.MealCategory;
@@ -18,7 +21,6 @@ import com.infyniteloop.runningroom.kitchen.enums.MealType;
 import com.infyniteloop.runningroom.kitchen.repository.MenuRepository;
 import com.infyniteloop.runningroom.room.entity.Room;
 import com.infyniteloop.runningroom.room.repository.RoomRepository;
-import com.infyniteloop.runningroom.room.service.RoomService;
 import com.infyniteloop.runningroom.runningroom.entity.Division;
 import com.infyniteloop.runningroom.runningroom.entity.Zone;
 import com.infyniteloop.runningroom.runningroom.entity.RunningRoom;
@@ -59,6 +61,7 @@ public class DataInitializer implements CommandLineRunner {
     private final BedRepository bedRepository;
     private final MenuRepository menuRepository;
     private final BookingRepository bookingRepository;
+    private final CrewRepository crewRepository;
 
     public DataInitializer(RoleRepository roleRepository,
                            UserRepository userRepository,
@@ -70,7 +73,8 @@ public class DataInitializer implements CommandLineRunner {
                            BuildingRepository buildingRepository,
                            BedRepository bedRepository,
                            MenuRepository menuRepository,
-                           BookingRepository bookingRepository
+                           BookingRepository bookingRepository,
+                           CrewRepository crewRepository
     ) {
         this.roleRepository = roleRepository;
         this.userRepository = userRepository;
@@ -83,6 +87,7 @@ public class DataInitializer implements CommandLineRunner {
         this.bedRepository = bedRepository;
         this.menuRepository = menuRepository;
         this.bookingRepository = bookingRepository;
+        this.crewRepository = crewRepository;
     }
 
     @Override
@@ -190,6 +195,49 @@ public class DataInitializer implements CommandLineRunner {
             log.info("Created user Rajni");
         }
 
+        // Initialize Crew data for Ratlam (RTM)
+        String[] crewNames = {
+                "Rajesh Kumar", "Priya Singh", "Ramesh Verma", "Ankita Rao",
+                "Vikram Patel", "Neha Sharma", "Arjun Desai", "Sapna Gupta",
+                "Arun Nair", "Divya Reddy"
+        };
+
+        String[] fathersNames = {
+                "Ram Kumar", "Suresh Singh", "Hari Verma", "Rajesh Rao",
+                "Kiran Patel", "Anil Sharma", "Ravi Desai", "Amit Gupta",
+                "Krishna Nair", "Venkat Reddy"
+        };
+
+        String[] mobileNumbers = {
+                "9876543210", "9876543211", "9876543212", "9876543213",
+                "9876543214", "9876543215", "9876543216", "9876543217",
+                "9876543218", "9876543219"
+        };
+
+        for (int i = 1; i <= 10; i++) {
+            String crewId = String.format("RTM%04d", i);
+            if (!crewRepository.existsById(crewId)) {
+                Crew crew = new Crew();
+                crew.setCrewId(crewId);
+                crew.setName(crewNames[i - 1]);
+                crew.setFathersName(fathersNames[i - 1]);
+                crew.setGender(i % 2 == 0 ? "Female" : "Male");
+                crew.setDateOfBirth(LocalDate.of(1985 + (i % 10), (i % 12) + 1, (i % 28) + 1));
+                crew.setMobileNumber(mobileNumbers[i - 1]);
+                crew.setAddress("Ratlam, Madhya Pradesh - " + (450000 + i));
+                crew.setPermanentAddress("Ratlam, Madhya Pradesh - " + (450000 + i));
+                crew.setMaritalStatus(i % 3 == 0 ? "Married" : "Single");
+                crew.setBloodGroup(new String[]{"O+", "A+", "B+", "AB+"}[i % 4]);
+                crew.setEmergencyContactNumber(mobileNumbers[(i - 1 + 5) % 10]);
+                crew.setDesignation(new String[]{"Driver", "Guard", "Attendant", "Engineer", "Operator"}[i % 5]);
+                crew.setCrewType("RRTM");
+                crew.setOrgType("RLY");
+                crew.setHqCode("RTM");
+                crew.setCadre("A");
+                crewRepository.save(crew);
+                log.info("Created crew with ID: {}", crewId);
+            }
+        }
 
         Building buildingA = new Building();
         buildingA.setBuildingName("Building NDLS A");
@@ -214,58 +262,77 @@ public class DataInitializer implements CommandLineRunner {
                 .orElseGet(() -> buildingRepository.save(buildingLA));
 
 
-        Room n101 = roomRepository.findByRoomNumber("N101")
-                .orElseGet(() -> roomRepository.save(build("N101", ndls.getId(), saveBuildingA)));
-        Room n102 = roomRepository.findByRoomNumber("N102")
-                .orElseGet(() -> roomRepository.save(build("N102", ndls.getId(), saveBuildingA)));
+        Room na101 = roomRepository.findByRoomNumber("NA101")
+                .orElseGet(() -> roomRepository.save(build("NA101", ndls.getId(), saveBuildingA)));
+        Room na102 = roomRepository.findByRoomNumber("NA102")
+                .orElseGet(() -> roomRepository.save(build("NA102", ndls.getId(), saveBuildingA)));
         Room nb102 = roomRepository.findByRoomNumber("NB102")
                 .orElseGet(() -> roomRepository.save(build("NB102", ndls.getId(), saveBuildingNB)));
-        Room l103 = roomRepository.findByRoomNumber("L103")
-                .orElseGet(() -> roomRepository.save(build("L103", chn.getId(), saveBuildingB)));
-        Room l104 = roomRepository.findByRoomNumber("L104")
-                .orElseGet(() -> roomRepository.save(build("L104", chn.getId(), saveBuildingB)));
+        Room chn101 = roomRepository.findByRoomNumber("C101")
+                .orElseGet(() -> roomRepository.save(build("C101", chn.getId(), saveBuildingB)));
+        Room chn102 = roomRepository.findByRoomNumber("C102")
+                .orElseGet(() -> roomRepository.save(build("C102", chn.getId(), saveBuildingB)));
 
 
-        Bed bednb1 = bedRepository.findByRoomAndBedNumber(n101, 1)
+        Bed bed1_n101 = bedRepository.findByRoomAndBedNumber(na101, 1)
+                .orElseGet(() -> {
+                    Bed b = new Bed();
+                    b.setBedNumber(1);
+                    b.setRoom(na101);
+                    b.setTenantId(ndls.getId());
+                    b.setOccupancyStatus(OccupancyStatus.AVAILABLE);
+                    return bedRepository.save(b);
+                });
+
+        Bed bed2_n101 = bedRepository.findByRoomAndBedNumber(na101, 2)
+                .orElseGet(() -> {
+                    Bed b = new Bed();
+                    b.setBedNumber(2);
+                    b.setRoom(na101);
+                    b.setTenantId(ndls.getId());
+                    b.setOccupancyStatus(OccupancyStatus.AVAILABLE);
+                    return bedRepository.save(b);
+                });
+
+        Bed bed1_n102 = bedRepository.findByRoomAndBedNumber(na102, 2)
+                .orElseGet(() -> {
+                    Bed b = new Bed();
+                    b.setBedNumber(2);
+                    b.setRoom(na102);
+                    b.setTenantId(ndls.getId());
+                    b.setOccupancyStatus(OccupancyStatus.AVAILABLE);
+                    return bedRepository.save(b);
+                });
+
+        Bed bed1_nb102 = bedRepository.findByRoomAndBedNumber(nb102, 1)
                 .orElseGet(() -> {
                     Bed b = new Bed();
                     b.setBedNumber(1);
                     b.setRoom(nb102);
                     b.setTenantId(ndls.getId());
+                    b.setOccupancyStatus(OccupancyStatus.AVAILABLE);
                     return bedRepository.save(b);
                 });
 
 
-        Bed bed1 = bedRepository.findByRoomAndBedNumber(n101, 1)
+
+
+        Bed bed1_chn101 = bedRepository.findByRoomAndBedNumber(chn101, 3)
                 .orElseGet(() -> {
                     Bed b = new Bed();
                     b.setBedNumber(1);
-                    b.setRoom(n101);
-                    b.setTenantId(ndls.getId());
-                    return bedRepository.save(b);
-                });
-        Bed bed2 = bedRepository.findByRoomAndBedNumber(n101, 2)
-                .orElseGet(() -> {
-                    Bed b = new Bed();
-                    b.setBedNumber(2);
-                    b.setRoom(n101);
-                    b.setTenantId(ndls.getId());
-                    return bedRepository.save(b);
-                });
-        Bed bed3 = bedRepository.findByRoomAndBedNumber(l103, 3)
-                .orElseGet(() -> {
-                    Bed b = new Bed();
-                    b.setBedNumber(3);
-                    b.setRoom(l103);
+                    b.setRoom(chn101);
                     b.setTenantId(chn.getId());
+                    b.setOccupancyStatus(OccupancyStatus.AVAILABLE);
                     return bedRepository.save(b);
                 });
-        Bed bed4 = bedRepository.findByRoomAndBedNumber(l103, 4)
+        Bed bed1_chn102 = bedRepository.findByRoomAndBedNumber(chn102, 4)
                 .orElseGet(() -> {
                     Bed b = new Bed();
-                    b.setBedNumber(4);
-                    b.setRoom(l103);
+                    b.setBedNumber(1);
+                    b.setRoom(chn102);
                     b.setTenantId(chn.getId());
+                    b.setOccupancyStatus(OccupancyStatus.AVAILABLE);
                     return bedRepository.save(b);
                 });
 
@@ -386,13 +453,15 @@ public class DataInitializer implements CommandLineRunner {
 
         List<Bed> beds = bedRepository.findAll();
         for (Bed bed : beds) {
-            Booking booking = Booking.builder()
-                    .bed(bed)
-                    .build();
-            booking.setTenantId(bed.getTenantId());
 
-            // Set other fields as needed
-            bookingRepository.save(booking);
+            bookingRepository.findByBed(bed)
+                    .orElseGet(() -> {
+                        Booking booking = Booking.builder()
+                                .bed(bed)
+                                .build();
+                        booking.setTenantId(bed.getTenantId());
+                        return  bookingRepository.save(booking);
+                    });
         }
 
 

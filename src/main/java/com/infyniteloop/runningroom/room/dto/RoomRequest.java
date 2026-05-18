@@ -49,7 +49,9 @@ public record RoomRequest(
         RoomCategory roomCategory,
 
         @NotNull(message = "Attachment type is required")
-        AttachmentType attachment
+        AttachmentType attachment,
+
+        int bedCount
 
 ) {
 }
