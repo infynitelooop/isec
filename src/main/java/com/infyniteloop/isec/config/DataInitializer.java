@@ -297,7 +297,7 @@ public class DataInitializer implements CommandLineRunner {
         Bed bed1_n102 = bedRepository.findByRoomAndBedNumber(na102, 2)
                 .orElseGet(() -> {
                     Bed b = new Bed();
-                    b.setBedNumber(2);
+                    b.setBedNumber(1);
                     b.setRoom(na102);
                     b.setTenantId(ndls.getId());
                     b.setOccupancyStatus(OccupancyStatus.AVAILABLE);

@@ -10,6 +10,7 @@ import com.infyniteloop.runningroom.exception.DuplicateResourceException;
 import com.infyniteloop.runningroom.exception.NotFoundException;
 import com.infyniteloop.runningroom.building.entity.Building;
 import com.infyniteloop.runningroom.room.entity.Room;
+import com.infyniteloop.runningroom.bed.repository.BedRepository;
 import com.infyniteloop.runningroom.room.mapper.RoomMapper;
 import com.infyniteloop.runningroom.building.repository.BuildingRepository;
 import com.infyniteloop.runningroom.room.repository.RoomRepository;
@@ -34,14 +35,16 @@ public class RoomServiceImpl implements RoomService {
     private final RoomRepository roomRepository;
     private final BuildingRepository buildingRepository;
     private final BookingRepository bookingRepository;
+    private final BedRepository bedRepository;
     private final RoomMapper roomMapper;
 
-    public RoomServiceImpl(RoomRepository roomRepository, BuildingRepository buildingRepository, RoomMapper roomMapper, 
-                           BookingRepository bookingRepository) {
+    public RoomServiceImpl(RoomRepository roomRepository, BuildingRepository buildingRepository, RoomMapper roomMapper,
+                           BookingRepository bookingRepository, BedRepository bedRepository) {
         this.roomRepository = roomRepository;
         this.buildingRepository = buildingRepository;
         this.roomMapper = roomMapper;
         this.bookingRepository = bookingRepository;
+        this.bedRepository = bedRepository;
     }
 
 
@@ -75,8 +78,15 @@ public class RoomServiceImpl implements RoomService {
 
 
         room.setTenantId(tenantId); // automatically set tenant
-        Room saved = roomRepository.save(room);
-        
+        Room saved = roomRepository.saveAndFlush(room);
+
+        // Ensure beds are persisted (some JPA providers may need explicit save in certain edge cases)
+        if (saved.getBeds() != null && !saved.getBeds().isEmpty()) {
+            List<Bed> persistedBeds = bedRepository.saveAll(saved.getBeds());
+            // Log persisted bed ids for debugging
+            persistedBeds.forEach(b -> log.debug("Persisted bed id={} number={} for room={}", b.getId(), b.getBedNumber(), saved.getId()));
+        }
+
         // Create default bookings for each bed
         List<Booking> bookings = new ArrayList<>(capacity);
         for (Bed bed : saved.getBeds()) {
@@ -94,6 +104,7 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
+    @Transactional
     public RoomResponse updateRoom(RoomRequest roomRequest) {
 
         UUID tenantId = TenantContext.CURRENT_TENANT.get();
@@ -133,10 +144,13 @@ public class RoomServiceImpl implements RoomService {
                 newBeds.add(bed);
             }
             existingRoom.setBeds(currentBeds);
-            
-            // Save room first
-            Room savedRoom = roomRepository.save(existingRoom);
-            
+
+            // Explicitly persist and refresh new beds
+            bedRepository.saveAllAndFlush(newBeds);
+
+            // Save and flush room first so newly added beds are inserted and receive IDs
+            roomRepository.saveAndFlush(existingRoom);
+
             // Create bookings for newly added beds
             List<Booking> newBookings = new ArrayList<>();
             for (Bed bed : newBeds) {
@@ -148,8 +162,10 @@ public class RoomServiceImpl implements RoomService {
             }
             bookingRepository.saveAll(newBookings);
             log.info("Added {} new beds and {} new bookings to room", newBeds.size(), newBookings.size());
-            
+
+            Room savedRoom = roomRepository.saveAndFlush(existingRoom);
             return roomMapper.toResponse(savedRoom);
+
         } else if (desiredCapacity < currentCount) {
             // remove surplus beds safely
             int toRemove = currentCount - desiredCapacity;
@@ -169,21 +185,24 @@ public class RoomServiceImpl implements RoomService {
                 }
             }
 
+            // Remove beds from the room
+            for (Bed bed : bedsToRemove) {
+                bedRepository.deleteById(bed.getId());
+                currentBeds.remove(bed);
+            }
+
+            existingRoom.setBeds(currentBeds);
+
             // Delete bookings for beds being removed
             for (Bed bed : bedsToRemove) {
                 bookingRepository.deleteByBedId(bed.getId());
                 log.info("Deleted all bookings for bed {} during room update", bed.getId());
             }
 
-            // Remove beds from the room
-            for (Bed bed : bedsToRemove) {
-                currentBeds.remove(bed);
-            }
-            existingRoom.setBeds(currentBeds);
             // With orphanRemoval = true, removed Bed entities will be deleted on save/flush
         }
 
-        Room saved = roomRepository.save(existingRoom);
+        Room saved = roomRepository.saveAndFlush(existingRoom);
         return roomMapper.toResponse(saved);
     }
 
@@ -195,8 +214,6 @@ public class RoomServiceImpl implements RoomService {
 
         // Safety check: ensure no beds have active bookings
         List<Bed> beds = room.getBeds();
-        List<String> bedsWithActiveBookings = new ArrayList<>();
-
 
         for (Bed bed : beds) {
             if (!bed.getOccupancyStatus().equals(OccupancyStatus.AVAILABLE)) {
