@@ -106,104 +106,122 @@ public class RoomServiceImpl implements RoomService {
     @Override
     @Transactional
     public RoomResponse updateRoom(RoomRequest roomRequest) {
-
         UUID tenantId = TenantContext.CURRENT_TENANT.get();
         if (tenantId == null) {
             throw new NotFoundException("TenantId not found in request context");
         }
 
-        // Fetch existing room
         Room existingRoom = roomRepository.findById(roomRequest.id())
                 .orElseThrow(() -> new NotFoundException(ROOM_NOT_FOUND));
 
-        // Map fields from DTO to entity
-        // update scalar fields (keeps tenantId unchanged)
         RoomMapper.updateRoomFromDto(roomRequest, existingRoom);
 
-        // Fetch the Building details
         Building building = buildingRepository.findById(UUID.fromString(roomRequest.buildingId()))
                 .orElseThrow(() -> new NotFoundException("Building not found"));
-
         existingRoom.setBuilding(building);
 
-
-        int desiredCapacity =roomRequest.bedCount();
+        int desiredCapacity = roomRequest.bedCount();
         List<Bed> currentBeds = existingRoom.getBeds() == null ? new ArrayList<>() : existingRoom.getBeds();
         int currentCount = currentBeds.size();
 
         if (desiredCapacity > currentCount) {
-            // add new beds
-            List<Bed> newBeds = new ArrayList<>();
-            for (int i = currentCount + 1; i <= desiredCapacity; i++) {
-                Bed bed = new Bed();
-                bed.setBedNumber(i);
-                bed.setRoom(existingRoom);
-                bed.setTenantId(tenantId);
-                bed.setOccupancyStatus(OccupancyStatus.AVAILABLE);
-                currentBeds.add(bed);
-                newBeds.add(bed);
-            }
-            existingRoom.setBeds(currentBeds);
-
-            // Explicitly persist and refresh new beds
-            bedRepository.saveAllAndFlush(newBeds);
-
-            // Save and flush room first so newly added beds are inserted and receive IDs
-            roomRepository.saveAndFlush(existingRoom);
-
-            // Create bookings for newly added beds
-            List<Booking> newBookings = new ArrayList<>();
-            for (Bed bed : newBeds) {
-                Booking booking = new Booking();
-                booking.setBed(bed);
-                booking.setOccupancyStatus(OccupancyStatus.AVAILABLE);
-                booking.setTenantId(tenantId);
-                newBookings.add(booking);
-            }
-            bookingRepository.saveAll(newBookings);
-            log.info("Added {} new beds and {} new bookings to room", newBeds.size(), newBookings.size());
-
-            Room savedRoom = roomRepository.saveAndFlush(existingRoom);
-            return roomMapper.toResponse(savedRoom);
-
+            addBedsToRoom(existingRoom, currentCount, desiredCapacity, tenantId);
         } else if (desiredCapacity < currentCount) {
-            // remove surplus beds safely
-            int toRemove = currentCount - desiredCapacity;
-            // Identify beds to remove (from the end)
-            List<Bed> bedsToRemove = new ArrayList<>();
-            for (int i = currentBeds.size() - 1; i >= 0 && bedsToRemove.size() < toRemove; i--) {
-                Bed b = currentBeds.get(i);
-                bedsToRemove.add(b);
-            }
-
-            for (Bed bed : bedsToRemove) {
-                if (!bed.getOccupancyStatus().equals(OccupancyStatus.AVAILABLE)) {
-                    throw new IllegalStateException(
-                            "Cannot reduce capacity: bed " + (bed != null ? bed.getBedNumber() : "unknown") +
-                                    " has active bookings. Complete or cancel all bookings before reducing capacity."
-                    );
-                }
-            }
-
-            // Remove beds from the room
-            for (Bed bed : bedsToRemove) {
-                bedRepository.deleteById(bed.getId());
-                currentBeds.remove(bed);
-            }
-
-            existingRoom.setBeds(currentBeds);
-
-            // Delete bookings for beds being removed
-            for (Bed bed : bedsToRemove) {
-                bookingRepository.deleteByBedId(bed.getId());
-                log.info("Deleted all bookings for bed {} during room update", bed.getId());
-            }
-
-            // With orphanRemoval = true, removed Bed entities will be deleted on save/flush
+            removeBedsFromRoom(existingRoom, currentCount, desiredCapacity, tenantId);
         }
 
         Room saved = roomRepository.saveAndFlush(existingRoom);
         return roomMapper.toResponse(saved);
+    }
+
+    /**
+     * Add new beds to the room when capacity increases.
+     */
+    private void addBedsToRoom(Room room, int currentCount, int desiredCapacity, UUID tenantId) {
+        List<Bed> currentBeds = room.getBeds();
+        List<Bed> newBeds = new ArrayList<>();
+
+        // Create new bed entities
+        for (int i = currentCount + 1; i <= desiredCapacity; i++) {
+            Bed bed = new Bed();
+            bed.setBedNumber(i);
+            bed.setRoom(room);
+            bed.setTenantId(tenantId);
+            bed.setOccupancyStatus(OccupancyStatus.AVAILABLE);
+            currentBeds.add(bed);
+            newBeds.add(bed);
+        }
+        room.setBeds(currentBeds);
+
+        // Persist beds explicitly
+        bedRepository.saveAllAndFlush(newBeds);
+        roomRepository.saveAndFlush(room);
+
+        // Create bookings for newly added beds
+        List<Booking> newBookings = newBeds.stream()
+                .map(bed -> createBookingForBed(bed, tenantId))
+                .toList();
+        bookingRepository.saveAll(newBookings);
+
+        log.info("Added {} new beds and {} new bookings to room", newBeds.size(), newBookings.size());
+    }
+
+    /**
+     * Remove beds from the room when capacity decreases.
+     */
+    private void removeBedsFromRoom(Room room, int currentCount, int desiredCapacity, UUID tenantId) {
+        List<Bed> currentBeds = room.getBeds();
+        int toRemove = currentCount - desiredCapacity;
+        List<Bed> bedsToRemove = identifyBedsToRemove(currentBeds, toRemove);
+
+        // Validate that beds to remove don't have active bookings
+        validateBedsAvailableForRemoval(bedsToRemove);
+
+        // Delete beds and their bookings
+        for (Bed bed : bedsToRemove) {
+            bedRepository.deleteById(bed.getId());
+            bookingRepository.deleteByBedId(bed.getId());
+            currentBeds.remove(bed);
+            log.info("Deleted bed {} and associated bookings during room update", bed.getBedNumber());
+        }
+
+        room.setBeds(currentBeds);
+    }
+
+    /**
+     * Identify beds to remove from the end of the list.
+     */
+    private List<Bed> identifyBedsToRemove(List<Bed> currentBeds, int toRemove) {
+        List<Bed> bedsToRemove = new ArrayList<>();
+        for (int i = currentBeds.size() - 1; i >= 0 && bedsToRemove.size() < toRemove; i--) {
+            bedsToRemove.add(currentBeds.get(i));
+        }
+        return bedsToRemove;
+    }
+
+    /**
+     * Validate that all beds to be removed are available (not in use).
+     */
+    private void validateBedsAvailableForRemoval(List<Bed> bedsToRemove) {
+        for (Bed bed : bedsToRemove) {
+            if (!bed.getOccupancyStatus().equals(OccupancyStatus.AVAILABLE)) {
+                throw new IllegalStateException(
+                        "Cannot reduce capacity: bed " + bed.getBedNumber() +
+                        " has active bookings. Complete or cancel all bookings before reducing capacity."
+                );
+            }
+        }
+    }
+
+    /**
+     * Create a booking for a given bed.
+     */
+    private Booking createBookingForBed(Bed bed, UUID tenantId) {
+        Booking booking = new Booking();
+        booking.setBed(bed);
+        booking.setOccupancyStatus(OccupancyStatus.AVAILABLE);
+        booking.setTenantId(tenantId);
+        return booking;
     }
 
     @Override
