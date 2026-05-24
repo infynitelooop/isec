@@ -46,6 +46,12 @@ cd isec
 ```bash
    cd frontend npm install npm start
 ```
+## Intellij Options
+
+
+For mvn install to work
+- Set the JWT_PRIVATE_KEY and JWT_PUBLIC_KEY env variables in Build Tools -> Maven -. Runner
+
 
 ## API Endpoints
 

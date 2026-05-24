@@ -1,7 +1,13 @@
 package com.infyniteloop.isec.security.controller;
 
-import com.infyniteloop.isec.security.dtos.*;
+import com.infyniteloop.isec.security.dtos.request.LoginRequest;
+import com.infyniteloop.isec.security.dtos.request.SignupRequest;
+import com.infyniteloop.isec.security.dtos.response.LoginResponse;
+import com.infyniteloop.isec.security.dtos.response.MessageResponse;
+import com.infyniteloop.isec.security.dtos.response.UserInfoResponse;
 import com.infyniteloop.isec.security.jwt.JwtUtils;
+import com.infyniteloop.isec.security.kafka.UserEventProducer;
+import com.infyniteloop.isec.security.mapper.UserMapper;
 import com.infyniteloop.isec.security.models.AppRole;
 import com.infyniteloop.isec.security.models.Role;
 import com.infyniteloop.isec.security.models.User;
@@ -12,6 +18,7 @@ import com.infyniteloop.isec.security.services.UserService;
 import com.infyniteloop.isec.security.services.impl.UserDetailsImpl;
 import com.infyniteloop.isec.security.util.AuthUtil;
 import com.warrenstrange.googleauth.GoogleAuthenticatorKey;
+import dtos.event.UserEvent;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -50,14 +57,18 @@ public class AuthController {
     RoleRepository roleRepository;
     PasswordEncoder encoder;
     UserService userService;
+    UserMapper userMapper;
 
     AuthUtil authUtil;
 
     TotpService totpService;
 
+    UserEventProducer userEventProducer;
+
     public AuthController(JwtUtils jwtUtils, AuthenticationManager authenticationManager,
                           UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder encoder,
-                          UserService userService, AuthUtil authUtil, TotpService totpService) {
+                          UserService userService, AuthUtil authUtil, TotpService totpService,
+                          UserEventProducer userEventProducer, UserMapper userMapper) {
         this.jwtUtils = jwtUtils;
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
@@ -66,6 +77,8 @@ public class AuthController {
         this.userService = userService;
         this.authUtil = authUtil;
         this.totpService = totpService;
+        this.userEventProducer = userEventProducer;
+        this.userMapper = userMapper;
     }
 
     /**
@@ -149,6 +162,13 @@ public class AuthController {
         user.setSignUpMethod("email");
 
         userRepository.save(user);
+
+        UserEvent userEvent = new UserEvent();
+        userEvent.setStatus("USER_CREATED");
+        userEvent.setMessgae("New user created");
+        userEvent.setUser(userMapper.toUserEventDto(user));
+
+        userEventProducer.sendEvent(userEvent);
 
         return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
     }

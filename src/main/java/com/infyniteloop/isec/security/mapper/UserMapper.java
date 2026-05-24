@@ -1,8 +1,9 @@
 package com.infyniteloop.isec.security.mapper;
 
-import com.infyniteloop.isec.security.dtos.UserResponse;
+import com.infyniteloop.isec.security.dtos.response.UserResponse;
 import com.infyniteloop.isec.security.models.Role;
 import com.infyniteloop.isec.security.models.User;
+import dtos.UserEventDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
@@ -15,6 +16,8 @@ public interface UserMapper {
 
     @Mapping(target = "roles", source = "roles", qualifiedByName = "rolesToStrings")
     UserResponse toResponse(User user);
+
+    UserEventDto toUserEventDto(User user);
 
     @Named("rolesToStrings")
     default Set<String> rolesToStrings(Set<Role> roles) {

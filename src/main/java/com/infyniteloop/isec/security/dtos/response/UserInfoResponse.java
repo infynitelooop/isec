@@ -1,4 +1,4 @@
-package com.infyniteloop.isec.security.dtos;
+package com.infyniteloop.isec.security.dtos.response;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

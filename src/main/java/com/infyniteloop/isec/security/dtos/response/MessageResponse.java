@@ -1,4 +1,4 @@
-package com.infyniteloop.isec.security.dtos;
+package com.infyniteloop.isec.security.dtos.response;
 
 import lombok.Getter;
 import lombok.Setter;

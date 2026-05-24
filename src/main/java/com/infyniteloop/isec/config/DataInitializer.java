@@ -294,7 +294,7 @@ public class DataInitializer implements CommandLineRunner {
                     return bedRepository.save(b);
                 });
 
-        Bed bed1_n102 = bedRepository.findByRoomAndBedNumber(na102, 2)
+        Bed bed1_n102 = bedRepository.findByRoomAndBedNumber(na102, 1)
                 .orElseGet(() -> {
                     Bed b = new Bed();
                     b.setBedNumber(1);
@@ -317,7 +317,7 @@ public class DataInitializer implements CommandLineRunner {
 
 
 
-        Bed bed1_chn101 = bedRepository.findByRoomAndBedNumber(chn101, 3)
+        Bed bed1_chn101 = bedRepository.findByRoomAndBedNumber(chn101, 1)
                 .orElseGet(() -> {
                     Bed b = new Bed();
                     b.setBedNumber(1);
@@ -326,7 +326,7 @@ public class DataInitializer implements CommandLineRunner {
                     b.setOccupancyStatus(OccupancyStatus.AVAILABLE);
                     return bedRepository.save(b);
                 });
-        Bed bed1_chn102 = bedRepository.findByRoomAndBedNumber(chn102, 4)
+        Bed bed1_chn102 = bedRepository.findByRoomAndBedNumber(chn102, 1)
                 .orElseGet(() -> {
                     Bed b = new Bed();
                     b.setBedNumber(1);
