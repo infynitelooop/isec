@@ -7,7 +7,7 @@ import com.infyniteloop.runningroom.booking.dto.RoomOccupancyResponse;
 import com.infyniteloop.runningroom.booking.entity.Booking;
 import com.infyniteloop.runningroom.booking.mapper.BookingMapper;
 import com.infyniteloop.runningroom.crew.entity.Crew;
-import com.infyniteloop.runningroom.crew.repository.BookingRepository;
+import com.infyniteloop.runningroom.booking.repository.BookingRepository;
 import com.infyniteloop.runningroom.crew.repository.CrewRepository;
 import org.springframework.stereotype.Service;
 
@@ -17,8 +17,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static java.util.Arrays.stream;
 
 @Service
 public class BookingService {

@@ -1,4 +1,4 @@
-package com.infyniteloop.isec.security.dtos;
+package com.infyniteloop.isec.security.dtos.request;
 
 import java.util.Set;
 

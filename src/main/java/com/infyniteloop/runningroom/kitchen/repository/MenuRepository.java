@@ -12,4 +12,6 @@ public interface MenuRepository extends JpaRepository<Menu, UUID> {
     Optional<Menu> findByMenuDate(LocalDate menuDate);
     boolean existsByMenuDate(LocalDate menuDate);
     List<Menu> findByMenuDateBetweenOrderByMenuDateAsc(LocalDate startDate, LocalDate endDate);
+    Optional<Menu> findByMenuDateAndTenantId(LocalDate menuDate, UUID tenantId);
+    boolean existsByMenuDateAndTenantId(LocalDate menuDate, UUID tenantId);
 }

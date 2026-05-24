@@ -1,0 +1,57 @@
+-- MySQL dump 10.13  Distrib 8.0.42, for macos15 (arm64)
+--
+-- Host: localhost    Database: isecure
+-- ------------------------------------------------------
+-- Server version	9.3.0
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!50503 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `weekly_menu_item`
+--
+
+DROP TABLE IF EXISTS `weekly_menu_item`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `weekly_menu_item` (
+  `id` char(36) NOT NULL,
+  `day_of_week` enum('FRIDAY','MONDAY','SATURDAY','SUNDAY','THURSDAY','TUESDAY','WEDNESDAY') DEFAULT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  `meal_type` enum('BREAKFAST','DINNER','LUNCH','SNACKS') DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `price` double DEFAULT NULL,
+  `template_id` char(36) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK7r8gytglbiv9ay8ekq92y51fm` (`template_id`),
+  CONSTRAINT `FK7r8gytglbiv9ay8ekq92y51fm` FOREIGN KEY (`template_id`) REFERENCES `weekly_menu_templates` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `weekly_menu_item`
+--
+
+LOCK TABLES `weekly_menu_item` WRITE;
+/*!40000 ALTER TABLE `weekly_menu_item` DISABLE KEYS */;
+/*!40000 ALTER TABLE `weekly_menu_item` ENABLE KEYS */;
+UNLOCK TABLES;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2026-02-16 23:51:54

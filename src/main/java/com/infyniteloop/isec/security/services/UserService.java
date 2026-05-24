@@ -2,9 +2,8 @@ package com.infyniteloop.isec.security.services;
 
 
 
-import com.infyniteloop.isec.security.dtos.UserDTO;
-import com.infyniteloop.isec.security.dtos.UserRequest;
-import com.infyniteloop.isec.security.dtos.UserResponse;
+import com.infyniteloop.isec.security.dtos.request.UserRequest;
+import com.infyniteloop.isec.security.dtos.response.UserResponse;
 import com.infyniteloop.isec.security.models.Role;
 import com.infyniteloop.isec.security.models.User;
 import com.warrenstrange.googleauth.GoogleAuthenticatorKey;

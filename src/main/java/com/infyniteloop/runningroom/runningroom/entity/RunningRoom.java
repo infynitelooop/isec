@@ -1,4 +1,4 @@
-package com.infyniteloop.runningroom.model;
+package com.infyniteloop.runningroom.runningroom.entity;
 
 import com.infyniteloop.runningroom.building.entity.Building;
 import jakarta.persistence.*;
@@ -15,11 +15,14 @@ import java.util.UUID;
 public class RunningRoom {
     @Id @GeneratedValue
     private UUID id;
+    //location name
     private String name;
     private Boolean subsidisedMeal;
     private String description;
-    private String division;
-    private String zone;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "division_id")
+    private Division division;
 
     @OneToMany(mappedBy = "id", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Building> buildings;

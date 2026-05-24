@@ -1,6 +1,8 @@
 package com.infyniteloop.isec.security.jwt;
 
 import com.infyniteloop.isec.security.services.UserDetailsServiceImpl;
+import com.infyniteloop.isec.security.services.impl.UserDetailsImpl;
+import com.infyniteloop.runningroom.util.TenantContext;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.UUID;
 
 @Component
 public class AuthTokenFilter extends OncePerRequestFilter {
@@ -47,12 +50,30 @@ public class AuthTokenFilter extends OncePerRequestFilter {
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+
+                // Set tenantId in ThreadLocal context for downstream access
+                if (userDetails instanceof UserDetailsImpl) {
+                    UserDetailsImpl userDetailsImpl = (UserDetailsImpl) userDetails;
+                    UUID tenantId = userDetailsImpl.getTenantId();
+                    if (tenantId != null) {
+                        TenantContext.setCurrentTenant(tenantId);
+                        logger.debug("TenantContext set for tenant: {}", tenantId);
+                    } else {
+                        logger.warn("TenantId is null for user: {}", username);
+                    }
+                }
             }
         } catch (Exception e) {
             logger.error("Cannot set user authentication: {}", e);
+        } finally {
+            // Clean up TenantContext to prevent ThreadLocal leaks
+            // This is called after the request is fully processed
+            try {
+                filterChain.doFilter(request, response);
+            } finally {
+                TenantContext.clear();
+            }
         }
-
-        filterChain.doFilter(request, response);
     }
 
     private String parseJwt(HttpServletRequest request) {

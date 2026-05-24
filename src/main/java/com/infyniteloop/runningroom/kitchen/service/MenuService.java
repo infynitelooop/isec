@@ -7,6 +7,7 @@ import com.infyniteloop.runningroom.kitchen.entity.MenuItem;
 import com.infyniteloop.runningroom.kitchen.entity.WeeklyMenuItem;
 import com.infyniteloop.runningroom.kitchen.entity.WeeklyMenuTemplate;
 import com.infyniteloop.runningroom.kitchen.enums.MealType;
+import com.infyniteloop.runningroom.kitchen.repository.MenuItemRepository;
 import com.infyniteloop.runningroom.kitchen.repository.MenuRepository;
 import com.infyniteloop.runningroom.kitchen.repository.WeeklyMenuTemplateRepository;
 import com.infyniteloop.runningroom.util.TenantContext;
@@ -37,10 +38,16 @@ public class MenuService {
 
     private final WeeklyMenuTemplateRepository templateRepository;
     private final MenuRepository menuRepository;
+    private final MenuItemRepository menuItemRepository;
 
 
     public Menu createMenu(Menu menu) {
         return menuRepository.save(menu);
+    }
+
+    public MenuItem getMenuItemById(UUID id) {
+        return menuItemRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("MenuItem not found"));
     }
 
     public Menu getMenuById(UUID id) {
@@ -51,11 +58,38 @@ public class MenuService {
     @Transactional
     public Menu updateMenu(UUID id, Menu updatedMenu) {
         Menu existingMenu = getMenuById(id);
-        existingMenu.getItems().clear();
 
-        for (MenuItem item : updatedMenu.getItems()) {
-            item.setMenu(existingMenu); // very important!
-            existingMenu.getItems().add(item);
+        // Create a map of updated items by ID for quick lookup
+        Map<UUID, MenuItem> updatedItemsMap = updatedMenu.getItems().stream()
+                .collect(Collectors.toMap(MenuItem::getId, item -> item));
+
+        // Update existing items in place (don't clear the collection)
+        for (MenuItem existing : existingMenu.getItems()) {
+            if (updatedItemsMap.containsKey(existing.getId())) {
+                MenuItem updatedItem = updatedItemsMap.get(existing.getId());
+
+                // Clear all fields if name is blank/null, else update normally
+                Optional.ofNullable(updatedItem.getName())
+                        .filter(name -> !name.isBlank())
+                        .ifPresentOrElse(
+                                name -> {
+                                    // If name is present and not blank, update all fields
+                                    existing.setName(name);
+                                    Optional.ofNullable(updatedItem.getDescription()).ifPresent(existing::setDescription);
+                                    Optional.ofNullable(updatedItem.getPrice()).ifPresent(existing::setPrice);
+                                    Optional.ofNullable(updatedItem.getMealType()).ifPresent(existing::setMealType);
+                                    Optional.ofNullable(updatedItem.getMealCategory()).ifPresent(existing::setMealCategory);
+                                },
+                                () -> {
+                                    // If name is blank/null, clear everything except mealCategory
+                                    existing.setName(null);
+                                    existing.setDescription(null);
+                                    existing.setPrice(null);
+                                    existing.setMealType(null);
+                                    // Keep mealCategory unchanged
+                                }
+                        );
+            }
         }
 
         return menuRepository.save(existingMenu);
@@ -256,7 +290,6 @@ public class MenuService {
 
         return menuRepository.saveAll(newMenus);
     }
-
 
 
     @Transactional
