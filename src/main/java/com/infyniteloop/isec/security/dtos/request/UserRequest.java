@@ -20,6 +20,9 @@ public record UserRequest(
         @Size(max = 50, message = "firstName must not exceed 50 characters")
         String firstName,
 
+        @Size(max = 50, message = "middleName must not exceed 50 characters")
+        String middleName,
+
         @Size(max = 50, message = "lastName must not exceed 50 characters")
         String lastName,
 

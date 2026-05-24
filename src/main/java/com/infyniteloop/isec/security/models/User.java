@@ -55,6 +55,9 @@ public class User{
     @Size(max = 50)
     private String firstName;
 
+    @Size(max = 50)
+    private String middleName;
+
     @NotBlank(message = "Last name is required")
     @Size(max = 50)
     private String lastName;

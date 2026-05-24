@@ -31,6 +31,9 @@ public class SignupRequest {
     @Size(max = 50)
     private String firstName;
 
+    @Size(max = 50)
+    private String middleName;
+
     @NotBlank
     @Size(max = 50)
     private String lastName;
