@@ -10,6 +10,8 @@ services:
       MYSQL_PASSWORD: userpass
     volumes:
       - mysql_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
     networks:
       - appnet
 
@@ -17,6 +19,8 @@ services:
     image: infyniteloop/isec:latest
     container_name: backend
     restart: always
+    env_file:
+      - .env
     depends_on:
       - db
     environment:
