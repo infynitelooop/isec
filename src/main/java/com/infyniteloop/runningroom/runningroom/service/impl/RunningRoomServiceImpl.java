@@ -1,9 +1,9 @@
 package com.infyniteloop.runningroom.runningroom.service.impl;
 
-import com.infyniteloop.runningroom.exception.DuplicateResourceException;
 import com.infyniteloop.runningroom.runningroom.entity.RunningRoom;
 import com.infyniteloop.runningroom.runningroom.repository.RunningRoomRepository;
 import com.infyniteloop.runningroom.runningroom.service.RunningRoomService;
+import exception.DuplicateResourceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;

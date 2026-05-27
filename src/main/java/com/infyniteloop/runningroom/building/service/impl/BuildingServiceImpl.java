@@ -2,13 +2,13 @@ package com.infyniteloop.runningroom.building.service.impl;
 
 import com.infyniteloop.runningroom.building.dto.BuildingRequest;
 import com.infyniteloop.runningroom.building.dto.BuildingResponse;
-import com.infyniteloop.runningroom.exception.DuplicateResourceException;
-import com.infyniteloop.runningroom.exception.NotFoundException;
 import com.infyniteloop.runningroom.building.entity.Building;
 import com.infyniteloop.runningroom.building.repository.BuildingRepository;
 import com.infyniteloop.runningroom.runningroom.repository.RunningRoomRepository;
 import com.infyniteloop.runningroom.building.service.BuildingService;
 import com.infyniteloop.runningroom.util.TenantContext;
+import exception.DuplicateResourceException;
+import exception.NotFoundException;
 import jakarta.persistence.EntityManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

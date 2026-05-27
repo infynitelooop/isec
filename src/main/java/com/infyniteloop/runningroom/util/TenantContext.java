@@ -1,6 +1,6 @@
 package com.infyniteloop.runningroom.util;
 
-import com.infyniteloop.runningroom.exception.NotFoundException;
+import exception.NotFoundException;
 
 import java.util.Optional;
 import java.util.UUID;

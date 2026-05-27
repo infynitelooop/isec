@@ -1,6 +1,9 @@
 package com.infyniteloop.runningroom.exception;
 
-import com.infyniteloop.runningroom.exception.dto.ErrorResponse;
+import exception.BadRequestException;
+import exception.DuplicateResourceException;
+import exception.NotFoundException;
+import exception.dto.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
